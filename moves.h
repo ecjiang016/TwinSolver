@@ -2,20 +2,6 @@
 #include <stdint.h>
 #include <bit>
 
-// Masks
-//
-// Each number corresponds to a byte
-// Byte order:
-// 7 0 1
-// 6   2
-// 5 4 3
-
-//                       7 6 5 4 3 2 1 0
-uint64_t TOP_MASK    = 0xFF0000000000FFFF;
-uint64_t BOTTOM_MASK = 0x0000FFFFFF000000;
-uint64_t RIGHT_MASK  = 0x00000000FFFFFF00;
-uint64_t LEFT_MASK   = 0xFFFFFF0000000000;
-
 enum Move : uint8_t {
     D = 0b00000,
     F,

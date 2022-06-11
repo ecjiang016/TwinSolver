@@ -14,6 +14,29 @@ enum Color : uint8_t {
     ORANGE = 32
 };
 
+// Masks
+//
+// Each number corresponds to a byte
+// Byte order:
+// 7 0 1
+// 6   2
+// 5 4 3
+
+//                              7 6 5 4 3 2 1 0
+const uint64_t TOP_MASK    = 0xFF0000000000FFFF;
+const uint64_t BOTTOM_MASK = 0x0000FFFFFF000000;
+const uint64_t RIGHT_MASK  = 0x00000000FFFFFF00;
+const uint64_t LEFT_MASK   = 0xFFFFFF0000000000;
+const uint64_t MIDDLE_MASK = 0x00FF000000FF0000;
+const uint64_t EDGE_MASK   = 0x00FF00FF00FF00FF;
+const uint64_t CORNER_MASK = ~EDGE_MASK;
+
+const uint64_t SOLID_FACE_WHITE = 0x0101010101010101;
+const uint64_t SOLID_FACE_BLUE = 0x0202020202020202;
+const uint64_t SOLID_FACE_RED = 0x0404040404040404; 
+const uint64_t SOLID_FACE_YELLOW = 0x0808080808080808;
+const uint64_t SOLID_FACE_GREEN = 0x1010101010101010;
+const uint64_t SOLID_FACE_ORANGE = 0x2020202020202020;
 
 inline uint64_t concatenate(Color color1, Color color2, Color color3, Color color4,
                 Color color5, Color color6, Color color7, Color color8) {

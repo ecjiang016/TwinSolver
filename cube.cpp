@@ -6,17 +6,34 @@ class Cube {
     uint64_t sides[6];
 
     Cube() {
-        sides[0] = concatenate(WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE);
-        sides[1] = concatenate(BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE);
-        sides[2] = concatenate(RED, RED, RED, RED, RED, RED, RED, RED);
-        sides[3] = concatenate(YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW, YELLOW);
-        sides[4] = concatenate(GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN);
-        sides[5] = concatenate(ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE, ORANGE);
+        sides[0] = SOLID_FACE_WHITE;
+        sides[1] = SOLID_FACE_BLUE;
+        sides[2] = SOLID_FACE_RED;
+        sides[3] = SOLID_FACE_YELLOW;
+        sides[4] = SOLID_FACE_GREEN;
+        sides[5] = SOLID_FACE_ORANGE;
     }
 
 	void rotate(Move move);
+	
+	bool inG1();
+
+	bool isSolved() {
+		return (sides[0] & SOLID_FACE_WHITE) &&
+			   (sides[1] & SOLID_FACE_BLUE) &&
+			   (sides[2] & SOLID_FACE_RED) &&
+			   (sides[3] & SOLID_FACE_YELLOW) &&
+			   (sides[4] & SOLID_FACE_GREEN) &&
+			   (sides[5] & SOLID_FACE_ORANGE);
+	}
 
 };
+
+bool Cube::inG1() {
+	return !((sides[1] | sides[2] | sides[4] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // If all edge pieces that belong in the middle layer are in the middle layer
+	!((sides[0] | sides[3]) & EDGE_MASK   & ~(SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // Check if the rest of the edges are oriented
+	!((sides[0] | sides[3]) & CORNER_MASK & ~(SOLID_FACE_WHITE | SOLID_FACE_YELLOW)); // Check if all the corners are oriented
+}
 
 void Cube::rotate(Move move) {
 	uint64_t *side = &sides[move & 0b00111];
