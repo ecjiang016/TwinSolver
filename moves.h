@@ -21,7 +21,49 @@ enum Move : uint8_t {
     U2,
     B2,
     L2,
+    NULL_MOVE = 0b11111
 };
+
+Move reverse_move(Move move) {
+    switch (move) {
+        case D:
+            return Dp;
+        case F:
+            return Fp;
+        case R:
+            return Rp;
+        case U:
+            return Up;
+        case B:
+            return Bp;
+        case L:
+            return Lp;
+        case Dp:
+            return D;
+        case Fp:
+            return F;
+        case Rp:
+            return R;
+        case Up:
+            return U;
+        case Bp:
+            return B;
+        case Lp:
+            return L;
+        case D2:
+            return D2;
+        case F2:
+            return F2;
+        case R2:
+            return R2;
+        case U2:
+            return U2;
+        case B2:
+            return B2;
+        case L2:
+            return L2;
+    }
+}
 
 void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
     side &= ~mask; // Set the bits that will be inserted into to zero
