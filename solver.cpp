@@ -73,3 +73,22 @@ std::vector<Move> Solver::solve(Cube &cube) {
         bound = t;
     }
 }
+
+int main() {
+    Move scramble[] = {R, Up, F, U, Rp, L, U2, B2, Dp};
+
+    Cube cube = Cube();
+    for (Move move : scramble) {
+        cube.rotate(move);
+    }
+
+    std::cout << std::endl;
+    cube.print();
+
+    Solver solver = Solver();
+    std::vector<Move> solution = solver.solve(cube);
+    
+    for (Move move : solution) {
+        std::cout << move << std::endl;
+    }
+}
