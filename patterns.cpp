@@ -2,6 +2,7 @@
 #include "patterns.h"
 #include <algorithm>
 #include <vector>
+#include <deque>
 
 // Cube layout:
 // White is actually upside down (180 degree turn)
@@ -178,17 +179,17 @@ class CornerHash {
         for (int i = 0; i < 8; i++) {
             //Doing (23 - i)! / 16!
             for (int j = 18; j <= (23 - i); j++) {
-                //std::cout << j << std::endl;
+
                 perm[i] *= j;
             }
-            std::cout << "perm " << i << ": " << perm[i] << std::endl;
+
         }
         
         //Make the bit count lookup table
         bitCount.reserve(1 << 24);
-        for (uint i = 0; i < (1 << 24); i++) {
+        for (unsigned int i = 0; i < (1 << 24); i++) {
             uint8_t count = 0;
-            uint x = i; // So bits can be removed from x
+            unsigned int x = i; // So bits can be removed from x
             if (x) do { count++; } while (x &= x-1);
             bitCount[i] = count;
         }
@@ -201,7 +202,8 @@ class CornerHash {
         //Compute the Lehmer code
         for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
             unsigned int index = corner_index(getCorner(i, cube));
-            bit_string |= uint32_t(1) << (31 - index);
+            bit_string |= uint32_t(1) << (23 - index);
+
             if (i != 0) { //The first digit of the Lehmer code doesn't depend on the others so jump ahead
                 index -= bitCount[bit_string >> (24-index)];
             }
@@ -227,37 +229,44 @@ struct CornerHashPair {
 
 const Move all_moves[] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
 
-void cornerSearch(int depth, std::vector<CornerHashPair> &previous_pairs, Cube cube, Move last_move, CornerHash &corner_hash) {
-    cube.rotate(last_move);
-    uint32_t hash = corner_hash.computeCode(cube);
-
-    //Break if this state hasn't been encoutered before
-    for (CornerHashPair pair : previous_pairs) {
-        if (pair.hash == hash) {
-            return;
-        }
-    }
-
-    previous_pairs.push_back(CornerHashPair(hash, depth));
-        
-    for (Move move : all_moves) {
-        if ((move & 0b00111) != (last_move & 0b00111)) { // There is no reason why you should move the same layer twice
-            cornerSearch(depth + 1, previous_pairs, cube, move, corner_hash);
-        }
-    }
-    
-}
-
-void initCornerDatabase() {
+void initCornerDatabase() { 
+    //Using breadth-first search
     Cube cube = Cube();
     CornerHash corner_hash = CornerHash();
-    std::vector<CornerHashPair> previous_pairs;
-
-    previous_pairs.push_back(CornerHashPair(corner_hash.computeCode(cube), 0));
-
-    std::cout << "iif\n";
+    std::vector<uint32_t> hashes;
+    std::deque<std::vector<Move>> queue;
+    
     for (Move move : all_moves) {
-        cornerSearch(1, previous_pairs, cube, move, corner_hash);
+        std::vector<Move> move_list;
+        move_list.push_back(move);
+        queue.push_back(move_list);
     }
 
+    while (queue.size() != 0) {
+        //Take node out of queue
+        std::vector<Move> node = queue.front();
+        queue.pop_front();
+        
+        //Move the cube to the node
+        for (Move move : node) { cube.rotate(move); }
+
+        //Hash stuff
+        uint32_t hash = corner_hash.computeCode(cube);
+        if (std::find(hashes.begin(), hashes.end(), hash) != hashes.end()) { continue; } // Already been visited, prune branch
+        hashes.push_back(hash);
+
+        //Add all the nodes from that node to the queue
+        for (Move move : all_moves) {
+            if ((move & 0b00111) != (node.back() & 0b00111)) { // Ignore moves of the same face
+                std::vector<Move> new_node = node;
+                new_node.push_back(move);
+                queue.push_back(new_node);
+            }
+        }
+
+        cube = Cube(); //Reset the cube
+    }
+
+    std::cout << hashes.size() << std::endl;
+    
 }
