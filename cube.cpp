@@ -27,6 +27,8 @@ class Cube {
 			   (sides[5] & SOLID_FACE_ORANGE);
 	}
 
+    void print();
+
 };
 
 bool Cube::inG1() {
@@ -147,9 +149,9 @@ void Cube::rotate(Move move) {
 			store_yellow = sides[3];
 			store_green  = sides[4];
 			insert(sides[0], store_yellow << 32, LEFT_MASK); //Right -> Left
-			insert(sides[1], store_green, RIGHT_MASK); //Left -> Right
+			insert(sides[1], store_green >> 32, RIGHT_MASK); //Left -> Right
 			insert(sides[3], store_white >> 32, RIGHT_MASK); //Left -> Right
-			insert(sides[4], store_blue, LEFT_MASK); //Right -> Left
+			insert(sides[4], store_blue << 32, LEFT_MASK); //Right -> Left
 			break;
 		case U:
 			roll<CLOCKWISE>(side); //Yellow
@@ -244,6 +246,7 @@ void Cube::rotate(Move move) {
 			insert(sides[1], store_white << 32, LEFT_MASK); //Right -> Left 
 			insert(sides[3], store_blue, LEFT_MASK); //Left -> Left
 			insert(sides[4], store_yellow >> 32, RIGHT_MASK); //Left -> Right
+            break;
 		case L2:
 			roll<DOUBLE_TURN>(side); //Orange
 			store_white  = sides[0];
@@ -254,5 +257,174 @@ void Cube::rotate(Move move) {
 			insert(sides[1], store_green << 32, LEFT_MASK); //Right -> Left 
 			insert(sides[3], store_white << 32, LEFT_MASK); //Right -> Left
 			insert(sides[4], store_blue >> 32, RIGHT_MASK); //Left -> Right
+            break;
 	}
+}
+
+void Cube::print() {
+
+    std::string yellow_stickers[8];
+    std::string* single_sticker = yellow_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((this->sides[3] >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    std::string orange_stickers[8];
+    single_sticker = orange_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((this->sides[5] >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    std::string blue_stickers[8];
+    single_sticker = blue_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((this->sides[1] >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    std::string green_stickers[8];
+    single_sticker = green_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((this->sides[4] >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    std::string red_stickers[8];
+    single_sticker = red_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((this->sides[2] >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    std::string white_stickers[8];
+    single_sticker = white_stickers;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((std::__rotl(this->sides[0], 32) >> shift) & 0xFF) {
+            case 1:
+                *single_sticker++ = "W";
+                break;
+            case 2:
+                *single_sticker++ = "B";
+                break;
+            case 4:
+                *single_sticker++ = "R";
+                break;
+            case 8:
+                *single_sticker++ = "Y";
+                break;
+            case 16:
+                *single_sticker++ = "G";
+                break;
+            case 32:
+                *single_sticker++ = "O";
+                break;
+        }
+    }
+
+    //Print Yellow side
+    std::cout << "        " << yellow_stickers[7] << " " << yellow_stickers[0] << " " << yellow_stickers[1] << std::endl;
+    std::cout << "        " << yellow_stickers[6] << " Y "                            << yellow_stickers[2] << std::endl;
+    std::cout << "        " << yellow_stickers[5] << " " << yellow_stickers[4] << " " << yellow_stickers[3] << std::endl;
+    std::cout << std::endl;
+    std::cout << orange_stickers[7] << " " << orange_stickers[0] << " " << orange_stickers[1] << "   " << blue_stickers[7] << " " << blue_stickers[0] << " " << blue_stickers[1] << "   " << red_stickers[7] << " " << red_stickers[0] << " " << red_stickers[1] << "   " << green_stickers[7] << " " << green_stickers[0] << " " << green_stickers[1] << std::endl;
+    std::cout << orange_stickers[6] << " O "                            << orange_stickers[2] << "   " << blue_stickers[6] << " B "                          << blue_stickers[2] << "   " << red_stickers[6] << " R "                         << red_stickers[2] << "   " << green_stickers[6] << " G "                           << green_stickers[2] << std::endl;
+    std::cout << orange_stickers[5] << " " << orange_stickers[4] << " " << orange_stickers[3] << "   " << blue_stickers[5] << " " << blue_stickers[4] << " " << blue_stickers[3] << "   " << red_stickers[5] << " " << red_stickers[4] << " " << red_stickers[3] << "   " << green_stickers[5] << " " << green_stickers[4] << " " << green_stickers[3] << std::endl;
+    std::cout << std::endl;
+    std::cout << "        " << white_stickers[7] << " " << white_stickers[0] << " " << white_stickers[1] << std::endl;
+    std::cout << "        " << white_stickers[6] << " W "                           << white_stickers[2] << std::endl;
+    std::cout << "        " << white_stickers[5] << " " << white_stickers[4] << " " << white_stickers[3] << std::endl;
+
+    std::cout << std::endl;
 }
