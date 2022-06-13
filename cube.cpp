@@ -19,12 +19,12 @@ class Cube {
 	bool inG1();
 
 	bool isSolved() {
-		return (sides[0] & SOLID_FACE_WHITE) &&
-			   (sides[1] & SOLID_FACE_BLUE) &&
-			   (sides[2] & SOLID_FACE_RED) &&
-			   (sides[3] & SOLID_FACE_YELLOW) &&
-			   (sides[4] & SOLID_FACE_GREEN) &&
-			   (sides[5] & SOLID_FACE_ORANGE);
+		return (sides[0] == SOLID_FACE_WHITE) &&
+			   (sides[1] == SOLID_FACE_BLUE) &&
+			   (sides[2] == SOLID_FACE_RED) &&
+			   (sides[3] == SOLID_FACE_YELLOW) &&
+			   (sides[4] == SOLID_FACE_GREEN) &&
+			   (sides[5] == SOLID_FACE_ORANGE);
 	}
 
     void print();
