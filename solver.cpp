@@ -3,33 +3,33 @@
 
 //Based on https://en.wikipedia.org/wiki/Iterative_deepening_A*?scrlybrkr=b5bb56ed
 
-const uint FOUND = 0xFFFFFF; //Big enough that it shouldn't ever be reached
+const unsigned int FOUND = 0xFFFFFF; //Big enough that it shouldn't ever be reached
 const Move allMoves[18] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2}; // Used to loop through all the moves
 
 class Solver {
   private:
-    uint search(std::vector<Move> &path, uint g, uint bound, Cube cube);
-    uint heuristic(Cube &cube);
+    unsigned int search(std::vector<Move> &path, unsigned int g, unsigned int bound, Cube cube);
+    unsigned int heuristic(Cube &cube);
 
   public:
     std::vector<Move> solve(Cube &cube);
 };
 
-uint Solver::heuristic(Cube &cube) {
+unsigned int Solver::heuristic(Cube &cube) {
     return 0;
 }
 
-uint Solver::search(std::vector<Move> &path, uint g, uint bound, Cube cube) {
+unsigned int Solver::search(std::vector<Move> &path, unsigned int g, unsigned int bound, Cube cube) {
     Move last_move = path.back();
     cube.rotate(last_move);
-    uint f = g + heuristic(cube);
+    unsigned int f = g + heuristic(cube);
 
     if (cube.isSolved()) {
         return FOUND;
     } else if (f > bound) {
         return f;
     }
-    uint min = 0xFFFF; // Set above upper bound
+    unsigned int min = 0xFFFF; // Set above upper bound
     
     for (Move move : allMoves) {
         //Pruning here
@@ -37,7 +37,7 @@ uint Solver::search(std::vector<Move> &path, uint g, uint bound, Cube cube) {
             path.push_back(move);
             //cube.rotate(move);
 
-            uint t = search(path, g + 1, bound, cube);
+            unsigned int t = search(path, g + 1, bound, cube);
             if (t == FOUND) {
                 return FOUND;
             } else if (t < min) {
@@ -55,13 +55,13 @@ uint Solver::search(std::vector<Move> &path, uint g, uint bound, Cube cube) {
 }
 
 std::vector<Move> Solver::solve(Cube &cube) {
-    uint bound = heuristic(cube);
+    unsigned int bound = heuristic(cube);
     std::vector<Move> path;
     path.reserve(35);
     path.push_back(NULL_MOVE); //Placeholder
 
     while (true) {
-        uint t = search(path, 0U, bound, cube);
+        unsigned int t = search(path, 0U, bound, cube);
         if (t == FOUND) {
             path.erase(path.begin()); //Delete the placeholder
             return path;
