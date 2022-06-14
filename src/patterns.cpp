@@ -1,7 +1,5 @@
-#include "cube.cpp"
 #include "patterns.h"
 #include <algorithm>
-#include <vector>
 #include <deque>
 
 // Cube layout:
@@ -168,54 +166,45 @@ int corner_index(uint64_t corner) {
 
 }
 
-class CornerHash {
-  private:
-    unsigned int perm[7] = {1, 1, 1, 1, 1, 1, 1}; // (24-1-i)P(8-1-i)
-    std::vector<int> bitCount; //Big boi look up table. There are 2^24 possible bit combiniations
+CornerHash::CornerHash() {
+    //Precomputes perms
 
-  public:
-    CornerHash() {
-        //Precomputes pick
-        for (int i = 0; i < 8; i++) {
-            //Doing (23 - i)! / 16!
-            for (int j = 18; j <= (23 - i); j++) {
-
-                perm[i] *= j;
-            }
-
-        }
-        
-        //Make the bit count lookup table
-        bitCount.reserve(1 << 24);
-        for (unsigned int i = 0; i < (1 << 24); i++) {
-            uint8_t count = 0;
-            unsigned int x = i; // So bits can be removed from x
-            if (x) do { count++; } while (x &= x-1);
-            bitCount[i] = count;
+    for (int i = 0; i < 8; i++) {
+        perm[i] = 1;
+        //Doing (23 - i)! / 16!
+        for (int j = 18; j <= (23 - i); j++) {
+            perm[i] *= j;
         }
     }
+    
+    //Make the bit count lookup table
+    bitCount.reserve(1 << 24);
+    for (unsigned int i = 0; i < (1 << 24); i++) {
+        uint8_t count = 0;
+        unsigned int x = i; // So bits can be removed from x
+        if (x) do { count++; } while (x &= x-1);
+        bitCount[i] = count;
+    }
+}
 
-    uint32_t computeCode(Cube &cube) {
-        uint32_t bit_string = 0;
-        uint32_t code = 0;
+uint32_t CornerHash::computeCode(Cube &cube) {
+    uint32_t bit_string = 0;
+    uint32_t code = 0;
 
-        //Compute the Lehmer code
-        for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
-            unsigned int index = corner_index(getCorner(i, cube));
-            bit_string |= uint32_t(1) << (23 - index);
+    //Compute the Lehmer code
+    for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
+        unsigned int index = corner_index(getCorner(i, cube));
+        bit_string |= uint32_t(1) << (23 - index);
 
-            if (i != 0) { //The first digit of the Lehmer code doesn't depend on the others so jump ahead
-                index -= bitCount[bit_string >> (24-index)];
-            }
-
-            code += index * perm[i]; //Translate into base 10
+        if (i != 0) { //The first digit of the Lehmer code doesn't depend on the others so jump ahead
+            index -= bitCount[bit_string >> (24-index)];
         }
 
-        return code;
-
+        code += index * perm[i]; //Translate into base 10
     }
 
-};
+    return code;
+}
 
 struct CornerHashPair {
     uint32_t hash;
@@ -226,8 +215,6 @@ struct CornerHashPair {
         data = data;
     }
 };
-
-const Move all_moves[] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
 
 void initCornerDatabase() { 
     //Using breadth-first search
@@ -242,6 +229,8 @@ void initCornerDatabase() {
         queue.push_back(move_list);
     }
 
+    int depth = 0;
+
     while (queue.size() != 0) {
         //Take node out of queue
         std::vector<Move> node = queue.front();
@@ -252,7 +241,10 @@ void initCornerDatabase() {
 
         //Hash stuff
         uint32_t hash = corner_hash.computeCode(cube);
-        if (std::find(hashes.begin(), hashes.end(), hash) != hashes.end()) { continue; } // Already been visited, prune branch
+        if (std::find(hashes.begin(), hashes.end(), hash) != hashes.end()) { 
+            if (node.size() != depth) { std::cout << depth++ << std::endl; }
+            continue;
+        } // Already been visited, prune branch
         hashes.push_back(hash);
 
         //Add all the nodes from that node to the queue

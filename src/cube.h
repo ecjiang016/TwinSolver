@@ -77,6 +77,8 @@ inline Move reverse_move(Move move) {
     }
 }
 
+const Move all_moves[] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
+
 // Masks
 //
 // Each number corresponds to a byte
