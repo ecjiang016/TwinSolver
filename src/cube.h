@@ -1,8 +1,8 @@
 #pragma once
-
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include <bit>
 #define C64(constantU64) constantU64##ULL
 
 enum Color : uint8_t {
@@ -13,6 +13,69 @@ enum Color : uint8_t {
     GREEN = 16,
     ORANGE = 32
 };
+
+enum Move : uint8_t {
+    D = 0b00000,
+    F,
+    R,
+    U,
+    B,
+    L,
+    Dp = 0b01000,
+    Fp,
+    Rp,
+    Up,
+    Bp,
+    Lp,
+    D2 = 0b10000,
+    F2,
+    R2,
+    U2,
+    B2,
+    L2,
+    NULL_MOVE = 0b11111
+};
+
+inline Move reverse_move(Move move) {
+    switch (move) {
+        case D:
+            return Dp;
+        case F:
+            return Fp;
+        case R:
+            return Rp;
+        case U:
+            return Up;
+        case B:
+            return Bp;
+        case L:
+            return Lp;
+        case Dp:
+            return D;
+        case Fp:
+            return F;
+        case Rp:
+            return R;
+        case Up:
+            return U;
+        case Bp:
+            return B;
+        case Lp:
+            return L;
+        case D2:
+            return D2;
+        case F2:
+            return F2;
+        case R2:
+            return R2;
+        case U2:
+            return U2;
+        case B2:
+            return B2;
+        case L2:
+            return L2;
+    }
+}
 
 // Masks
 //
@@ -44,36 +107,58 @@ inline uint64_t concatenate(Color color1, Color color2, Color color3, Color colo
         (color5 << 24) | (color6 << 16) | (color7 << 8) | color8);
 }
 
-void print_side(uint64_t &side) {
-    //Convert to array
-    std::string sides[8];
-    std::string* single_side = sides;
-    for (int shift = 0 ; shift < 64; shift += 8) {
-        switch ((side >> shift) & 0xFF) {
-            case 1:
-                *single_side++ = "W";
-                break;
-            case 2:
-                *single_side++ = "B";
-                break;
-            case 4:
-                *single_side++ = "R";
-                break;
-            case 8:
-                *single_side++ = "Y";
-                break;
-            case 16:
-                *single_side++ = "G";
-                break;
-            case 32:
-                *single_side++ = "O";
-                break;
-        }
+class Cube {
+  public:
+    uint64_t sides[6];
+
+    Cube() {
+        sides[0] = SOLID_FACE_WHITE;
+        sides[1] = SOLID_FACE_BLUE;
+        sides[2] = SOLID_FACE_RED;
+        sides[3] = SOLID_FACE_YELLOW;
+        sides[4] = SOLID_FACE_GREEN;
+        sides[5] = SOLID_FACE_ORANGE;
     }
 
-    //Print array
-    std::cout << sides[7] << " " << sides[0] << " " << sides[1] << std::endl;
-    std::cout << sides[6] <<        "   "           << sides[2] << std::endl;
-    std::cout << sides[5] << " " << sides[4] << " " << sides[3] << std::endl;
-    std::cout << std::endl;
+	void rotate(Move move);
+	
+	bool inG1();
+
+	bool isSolved() {
+		return (sides[0] == SOLID_FACE_WHITE) &&
+			   (sides[1] == SOLID_FACE_BLUE) &&
+			   (sides[2] == SOLID_FACE_RED) &&
+			   (sides[3] == SOLID_FACE_YELLOW) &&
+			   (sides[4] == SOLID_FACE_GREEN) &&
+			   (sides[5] == SOLID_FACE_ORANGE);
+	}
+
+    void print();
+
+};
+
+inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
+    side &= ~mask; // Set the bits that will be inserted into to zero
+    side ^= inserted_side & mask; // Toggle the bits to insert
 }
+
+enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };
+
+template <MoveType type = CLOCKWISE>
+inline void roll(uint64_t *side) {
+    *side = std::__rotl(*side, 16);
+}
+
+template <>
+inline void roll<COUNTER_CLOCKWISE>(uint64_t *side) {
+    *side = std::__rotr(*side, 16);
+}
+
+template<>
+inline void roll<DOUBLE_TURN>(uint64_t *side) {
+    *side = std::__rotl(*side, 32);
+}
+
+std::ostream &operator<<(std::ostream &out, const Move move);
+
+void print_side(uint64_t &side);

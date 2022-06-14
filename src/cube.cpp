@@ -1,35 +1,4 @@
 #include "cube.h"
-#include "moves.h"
-
-class Cube {
-  public:
-    uint64_t sides[6];
-
-    Cube() {
-        sides[0] = SOLID_FACE_WHITE;
-        sides[1] = SOLID_FACE_BLUE;
-        sides[2] = SOLID_FACE_RED;
-        sides[3] = SOLID_FACE_YELLOW;
-        sides[4] = SOLID_FACE_GREEN;
-        sides[5] = SOLID_FACE_ORANGE;
-    }
-
-	void rotate(Move move);
-	
-	bool inG1();
-
-	bool isSolved() {
-		return (sides[0] == SOLID_FACE_WHITE) &&
-			   (sides[1] == SOLID_FACE_BLUE) &&
-			   (sides[2] == SOLID_FACE_RED) &&
-			   (sides[3] == SOLID_FACE_YELLOW) &&
-			   (sides[4] == SOLID_FACE_GREEN) &&
-			   (sides[5] == SOLID_FACE_ORANGE);
-	}
-
-    void print();
-
-};
 
 bool Cube::inG1() {
 	return !((sides[1] | sides[2] | sides[4] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // If all edge pieces that belong in the middle layer are in the middle layer
@@ -427,4 +396,104 @@ void Cube::print() {
     std::cout << "        " << white_stickers[5] << " " << white_stickers[4] << " " << white_stickers[3] << std::endl;
 
     std::cout << std::endl;
+}
+
+void print_side(uint64_t &side) {
+    //Convert to array
+    std::string sides[8];
+    std::string* single_side = sides;
+    for (int shift = 0 ; shift < 64; shift += 8) {
+        switch ((side >> shift) & 0xFF) {
+            case 1:
+                *single_side++ = "W";
+                break;
+            case 2:
+                *single_side++ = "B";
+                break;
+            case 4:
+                *single_side++ = "R";
+                break;
+            case 8:
+                *single_side++ = "Y";
+                break;
+            case 16:
+                *single_side++ = "G";
+                break;
+            case 32:
+                *single_side++ = "O";
+                break;
+        }
+    }
+
+    //Print array
+    std::cout << sides[7] << " " << sides[0] << " " << sides[1] << std::endl;
+    std::cout << sides[6] <<        "   "           << sides[2] << std::endl;
+    std::cout << sides[5] << " " << sides[4] << " " << sides[3] << std::endl;
+    std::cout << std::endl;
+}
+
+std::ostream &operator<<(std::ostream &out, const Move move) {
+    std::string str;
+
+    switch (move) {
+        case D:
+            str = "D";
+            break;
+        case F:
+            str = "F";
+            break;
+        case R:
+            str = "R";
+            break;
+        case U:
+            str = "U";
+            break;
+        case B:
+            str = "B";
+            break;
+        case L:
+            str = "L";
+            break;
+        case Dp:
+            str = "Dp";
+            break;
+        case Fp:
+            str = "Fp";
+            break;
+        case Rp:
+            str = "Rp";
+            break;
+        case Up:
+            str = "Up";
+            break;
+        case Bp:
+            str = "Bp";
+            break;
+        case Lp:
+            str = "Lp";
+            break;
+        case D2:
+            str = "D2";
+            break;
+        case F2:
+            str = "F2";
+            break;
+        case R2:
+            str = "R2";
+            break;
+        case U2:
+            str = "U2";
+            break;
+        case B2:
+            str = "B2";
+            break;
+        case L2:
+            str = "L2";
+            break;
+        case NULL_MOVE:
+            str = "NULL";
+            break;
+    }
+
+    return out << str;
 }

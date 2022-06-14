@@ -1,4 +1,4 @@
-#include "cube.cpp"
+#include "cube.h"
 #include <vector>
 
 //Based on https://en.wikipedia.org/wiki/Iterative_deepening_A*?scrlybrkr=b5bb56ed
@@ -75,7 +75,7 @@ std::vector<Move> Solver::solve(Cube &cube) {
 }
 
 int main() {
-    Move scramble[] = {R, Up, F, U, Rp, L, U2, B2, Dp};
+    Move scramble[] = {R, Up, F, U, Rp, L, U2, B2};
 
     Cube cube = Cube();
     for (Move move : scramble) {
