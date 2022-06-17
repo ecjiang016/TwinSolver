@@ -1,7 +1,6 @@
 #include "patterns.h"
-#include <algorithm>
+#include <unordered_set>
 #include <deque>
-#include <cmath>
 
 // Cube layout:
 // White is actually upside down (180 degree turn)
@@ -220,7 +219,7 @@ struct CornerHashPair {
 void initCornerDatabase() { 
     //Using breadth-first search
     CornerHash corner_hash = CornerHash();
-    std::vector<uint32_t> hashes;
+    std::unordered_set<uint32_t> hashes;
     std::deque<Cube> queue;
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     unsigned int depth = 0;
@@ -234,8 +233,8 @@ void initCornerDatabase() {
 
         //Hash stuff
         uint32_t hash = corner_hash.computeCode(node);
-        if (std::find(hashes.begin(), hashes.end(), hash) == hashes.end()) { // Cube state hasn't been visited before
-            hashes.push_back(hash);
+        if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
+            hashes.insert(hash);
 
             //Add all the nodes from that node to the queue
             next_layer_nodes += 18;
