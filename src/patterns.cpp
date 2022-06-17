@@ -1,6 +1,7 @@
 #include "patterns.h"
 #include <algorithm>
 #include <deque>
+#include <cmath>
 
 // Cube layout:
 // White is actually upside down (180 degree turn)
@@ -218,45 +219,40 @@ struct CornerHashPair {
 
 void initCornerDatabase() { 
     //Using breadth-first search
-    Cube cube = Cube();
     CornerHash corner_hash = CornerHash();
     std::vector<uint32_t> hashes;
-    std::deque<std::vector<Move>> queue;
+    std::deque<Cube> queue;
+    uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
+    unsigned int depth = 0;
     
-    for (Move move : all_moves) {
-        std::vector<Move> move_list;
-        move_list.push_back(move);
-        queue.push_back(move_list);
-    }
-
-    int depth = 0;
+    queue.push_back(Cube());
 
     while (queue.size() != 0) {
         //Take node out of queue
-        std::vector<Move> node = queue.front();
+        Cube node = queue.front();
         queue.pop_front();
-        
-        //Move the cube to the node
-        for (Move move : node) { cube.rotate(move); }
 
         //Hash stuff
-        uint32_t hash = corner_hash.computeCode(cube);
-        if (std::find(hashes.begin(), hashes.end(), hash) != hashes.end()) { 
-            if (node.size() != depth) { std::cout << depth++ << std::endl; }
-            continue;
-        } // Already been visited, prune branch
-        hashes.push_back(hash);
+        uint32_t hash = corner_hash.computeCode(node);
+        if (std::find(hashes.begin(), hashes.end(), hash) == hashes.end()) { // Cube state hasn't been visited before
+            hashes.push_back(hash);
 
-        //Add all the nodes from that node to the queue
-        for (Move move : all_moves) {
-            if ((move & 0b00111) != (node.back() & 0b00111)) { // Ignore moves of the same face
-                std::vector<Move> new_node = node;
-                new_node.push_back(move);
+            //Add all the nodes from that node to the queue
+            next_layer_nodes += 18;
+            for (Move move : all_moves) {
+                Cube new_node = node;
+                new_node.rotate(move);
                 queue.push_back(new_node);
             }
         }
 
-        cube = Cube(); //Reset the cube
+        if (queue.size() == next_layer_nodes) {
+            std::cout << "Finished depth " << depth << std::endl;
+            depth++;
+            next_layer_nodes = 0;
+
+        }
+
     }
 
     std::cout << hashes.size() << std::endl;

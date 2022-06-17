@@ -77,7 +77,7 @@ inline Move reverse_move(Move move) {
     }
 }
 
-const Move all_moves[] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
+const Move all_moves[18] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
 
 // Masks
 //
@@ -120,6 +120,15 @@ class Cube {
         sides[3] = SOLID_FACE_YELLOW;
         sides[4] = SOLID_FACE_GREEN;
         sides[5] = SOLID_FACE_ORANGE;
+    }
+
+    Cube(const Cube &cube) { //Copy constructor
+        sides[0] = cube.sides[0];
+        sides[1] = cube.sides[1];
+        sides[2] = cube.sides[2];
+        sides[3] = cube.sides[3];
+        sides[4] = cube.sides[4];
+        sides[5] = cube.sides[5];
     }
 
 	void rotate(Move move);
