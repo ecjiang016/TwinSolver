@@ -47,9 +47,7 @@
 // Color, 3 bits set accordingly to the 3 colors on the corner piece
 // Example: 0b00000111 = White, blue, and red corner
 
-const uint64_t WHITE_YELLOW = WHITE | YELLOW;
-
-uint64_t getCorner(int corner_number, Cube &cube) {
+inline unsigned int corner_index(int corner_number, Cube &cube) {
     // Shifts needed:
     // 56 .  8
     // .  .  .
@@ -62,72 +60,62 @@ uint64_t getCorner(int corner_number, Cube &cube) {
     uint64_t UD;
     uint64_t FB;
     uint64_t RL;
+    unsigned int colors;
 
+    //Get the corner from the cube
     switch (corner_number) { 
 
         case 0:
-            FB = (cube.sides[1] >> 56) & 0xFF;
-            UD = (cube.sides[3] >> 40) & 0xFF;
-            RL = (cube.sides[5] >>  8) & 0xFF;
+            FB = cube.sides[1] >> 56;
+            UD = cube.sides[3] >> 40;
+            RL = cube.sides[5] >>  8;
             break;
 
         case 1:
-            FB = (cube.sides[1] >>  8) & 0xFF;
-            RL = (cube.sides[2] >> 56) & 0xFF;
-            UD = (cube.sides[3] >> 24) & 0xFF;
+            FB = cube.sides[1] >>  8;
+            RL = cube.sides[2] >> 56;
+            UD = cube.sides[3] >> 24;
             break;
 
         case 2:
-            UD = (cube.sides[0] >> 40) & 0xFF;
-            FB = (cube.sides[1] >> 24) & 0xFF;
-            RL = (cube.sides[2] >> 40) & 0xFF;
+            UD = cube.sides[0] >> 40;
+            FB = cube.sides[1] >> 24;
+            RL = cube.sides[2] >> 40;
             break;
 
         case 3:
-            UD = (cube.sides[0] >> 24) & 0xFF;
-            FB = (cube.sides[1] >> 40) & 0xFF;
-            RL = (cube.sides[5] >> 24) & 0xFF;
+            UD = cube.sides[0] >> 24;
+            FB = cube.sides[1] >> 40;
+            RL = cube.sides[5] >> 24;
             break;
 
         case 4:
-            RL = (cube.sides[2] >>  8) & 0xFF;
-            UD = (cube.sides[3] >>  8) & 0xFF;
-            FB = (cube.sides[4] >> 56) & 0xFF;
+            RL = cube.sides[2] >>  8;
+            UD = cube.sides[3] >>  8;
+            FB = cube.sides[4] >> 56;
             break;
 
         case 5:
-            UD = (cube.sides[3] >> 56) & 0xFF;
-            FB = (cube.sides[4] >>  8) & 0xFF;
-            RL = (cube.sides[5] >> 56) & 0xFF;
+            UD = cube.sides[3] >> 56;
+            FB = cube.sides[4] >>  8;
+            RL = cube.sides[5] >> 56;
             break;
 
         case 6:
-            UD = (cube.sides[0] >>  8) & 0xFF;
-            FB = (cube.sides[4] >> 24) & 0xFF;
-            RL = (cube.sides[5] >> 40) & 0xFF;
+            UD = cube.sides[0] >>  8;
+            FB = cube.sides[4] >> 24;
+            RL = cube.sides[5] >> 40;
             break;
 
         case 7:
-            UD = (cube.sides[0] >> 56) & 0xFF;
-            RL = (cube.sides[2] >> 24) & 0xFF;
-            FB = (cube.sides[4] >> 40) & 0xFF;
+            UD = cube.sides[0] >> 56;
+            RL = cube.sides[2] >> 24;
+            FB = cube.sides[4] >> 40;
             break;
-
     }
 
-    if (UD & WHITE_YELLOW) {
-        return UD | RL | FB;
-    } else if (FB & WHITE_YELLOW) {
-        return UD | RL | FB | 0b01000000ULL;
-    } else {
-        return UD | RL | FB | 0b10000000ULL;
-    }
-
-}
-
-int corner_index(uint64_t corner) {
-    uint64_t colors;
-    switch (corner & 0b111111ULL) {
+    //Convert the corner to an index
+    switch ((UD | RL | FB) & 0xFF) {
         case 0b101010:
             colors = 0;
             break;
@@ -156,14 +144,13 @@ int corner_index(uint64_t corner) {
             std::cout << "Error\n";
     }
 
-    if (!(corner & 0b11000000)) {
+    if (UD & WHITE_YELLOW) {
         return colors;
-    } else if (corner & 0b01000000) {
+    } else if (FB & WHITE_YELLOW) {
         return colors + 8;
     } else {
         return colors + 16;
     }
-
 }
 
 CornerHash::CornerHash() {
@@ -193,7 +180,7 @@ uint32_t CornerHash::computeCode(Cube &cube) {
 
     //Compute the Lehmer code
     for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
-        unsigned int index = corner_index(getCorner(i, cube));
+        unsigned int index = corner_index(i, cube);
         bit_string |= uint32_t(1) << (23 - index);
 
         if (i != 0) { //The first digit of the Lehmer code doesn't depend on the others so jump ahead

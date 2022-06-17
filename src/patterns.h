@@ -23,6 +23,8 @@ const uint64_t CORNER_MASK_5 = CORNER_MASK_1;
 const uint64_t CORNER_MASK_6 = CORNER_MASK_2;
 const uint64_t CORNER_MASK_7 = CORNER_MASK_3;
 
+const uint64_t WHITE_YELLOW = WHITE | YELLOW;
+
 inline int factorial(int n) {
     return n <= 1 ? 1 : n * factorial(n - 1);
 }
