@@ -7,8 +7,6 @@ bool Cube::inG1() {
 }
 
 void Cube::rotate(Move move) {
-	uint64_t *side = &sides[move & 0b00111];
-
 	uint64_t store_white;
 	uint64_t store_blue;
 	uint64_t store_red;
@@ -18,7 +16,7 @@ void Cube::rotate(Move move) {
 
 	switch (move) {
 		case D:
-			roll<CLOCKWISE>(side); //White
+			roll<CLOCKWISE>(sides[0]); //White
 			//Blue -> Red -> Green -> Orange
 			store_blue   = sides[1];
 			store_red    = sides[2];
@@ -30,7 +28,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_green, BOTTOM_MASK);
 			break;
 		case Dp:
-			roll<COUNTER_CLOCKWISE>(side); //White
+			roll<COUNTER_CLOCKWISE>(sides[0]); //White
 			//Blue <- Red <- Green <- Orange
 			store_blue   = sides[1];
 			store_red    = sides[2];
@@ -42,7 +40,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_blue, BOTTOM_MASK);
 			break;
 		case D2:
-			roll<DOUBLE_TURN>(side); //White
+			roll<DOUBLE_TURN>(sides[0]); //White
 			store_blue   = sides[1];
 			store_red    = sides[2];
 			store_green  = sides[4];
@@ -53,7 +51,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_red, BOTTOM_MASK);
 			break;
 		case F:
-			roll<CLOCKWISE>(side); //Blue
+			roll<CLOCKWISE>(sides[1]); //Blue
 			//White <- Red <- Yellow <- Orange
 			store_white  = sides[0];
 			store_red    = sides[2];
@@ -65,7 +63,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_white >> 16, RIGHT_MASK); //Bottom -> Right
 			break;
 		case Fp:
-			roll<COUNTER_CLOCKWISE>(side); //Blue
+			roll<COUNTER_CLOCKWISE>(sides[1]); //Blue
 			//White -> Red -> Yellow -> Orange
 			store_white  = sides[0];
 			store_red    = sides[2];
@@ -77,7 +75,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_yellow >> 16, RIGHT_MASK); //Bottom -> Right
 			break;
 		case F2:
-			roll<DOUBLE_TURN>(side); //Blue
+			roll<DOUBLE_TURN>(sides[1]); //Blue
 			store_white  = sides[0];
 			store_red    = sides[2];
 			store_yellow = sides[3];
@@ -88,7 +86,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_red >> 32, RIGHT_MASK); //Left -> Right
 			break;
 		case R:
-			roll<CLOCKWISE>(side); //Red
+			roll<CLOCKWISE>(sides[2]); //Red
 			//White -> Blue -> Yellow -> Green
 			store_white  = sides[0];
 			store_blue   = sides[1];
@@ -100,7 +98,7 @@ void Cube::rotate(Move move) {
 			insert(sides[4], store_yellow << 32, LEFT_MASK); //Right -> Left
 			break;
 		case Rp:
-			roll<COUNTER_CLOCKWISE>(side); //Red
+			roll<COUNTER_CLOCKWISE>(sides[2]); //Red
 			//White <- Blue <- Yellow <- Green
 			store_white  = sides[0];
 			store_blue   = sides[1];
@@ -112,7 +110,7 @@ void Cube::rotate(Move move) {
 			insert(sides[4], store_white, LEFT_MASK); //Left -> Left
 			break;
 		case R2:
-			roll<DOUBLE_TURN>(side); //Red
+			roll<DOUBLE_TURN>(sides[2]); //Red
 			store_white  = sides[0];
 			store_blue   = sides[1];
 			store_yellow = sides[3];
@@ -123,7 +121,7 @@ void Cube::rotate(Move move) {
 			insert(sides[4], store_blue << 32, LEFT_MASK); //Right -> Left
 			break;
 		case U:
-			roll<CLOCKWISE>(side); //Yellow
+			roll<CLOCKWISE>(sides[3]); //Yellow
 			//Blue <- Red <- Green <- Orange
 			store_blue   = sides[1];
 			store_red    = sides[2];
@@ -135,7 +133,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_blue, TOP_MASK);
 			break;
 		case Up:
-			roll<COUNTER_CLOCKWISE>(side); //Yellow
+			roll<COUNTER_CLOCKWISE>(sides[3]); //Yellow
 			//Blue -> Red -> Green -> Orange
 			store_blue   = sides[1];
 			store_red    = sides[2];
@@ -147,7 +145,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_green, TOP_MASK);
 			break;
 		case U2:
-			roll<DOUBLE_TURN>(side); //Yellow
+			roll<DOUBLE_TURN>(sides[3]); //Yellow
 			store_blue   = sides[1];
 			store_red    = sides[2];
 			store_green  = sides[4];
@@ -158,7 +156,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_red, TOP_MASK);
 			break;
 		case B:
-			roll<CLOCKWISE>(side); //Green
+			roll<CLOCKWISE>(sides[4]); //Green
 			//White -> Red -> Yellow -> Orange
 			store_white  = sides[0];
 			store_red    = sides[2];
@@ -170,7 +168,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], std::__rotr(store_yellow, 16), LEFT_MASK); //Top -> Left
 			break;
 		case Bp:
-			roll<COUNTER_CLOCKWISE>(side); //Green
+			roll<COUNTER_CLOCKWISE>(sides[4]); //Green
 			//White <- Red <- Yellow <- Orange
 			store_white  = sides[0];
 			store_red    = sides[2];
@@ -182,7 +180,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], std::__rotr(store_white, 16), LEFT_MASK); //Top -> Left
 			break;
 		case B2:
-			roll<DOUBLE_TURN>(side); //Green
+			roll<DOUBLE_TURN>(sides[4]); //Green
 			store_white  = sides[0];
 			store_red    = sides[2];
 			store_yellow = sides[3];
@@ -193,7 +191,7 @@ void Cube::rotate(Move move) {
 			insert(sides[5], store_red << 32, LEFT_MASK); //Right -> Left
 			break;
 		case L:
-			roll<CLOCKWISE>(side); //Orange
+			roll<CLOCKWISE>(sides[5]); //Orange
 			//White <- Blue <- Yellow <- Green
 			store_white  = sides[0];
 			store_blue   = sides[1];
@@ -205,7 +203,7 @@ void Cube::rotate(Move move) {
 			insert(sides[4], store_white, RIGHT_MASK); //Right -> Right
 			break;
 		case Lp:
-			roll<COUNTER_CLOCKWISE>(side); //Orange
+			roll<COUNTER_CLOCKWISE>(sides[5]); //Orange
 			//White -> Blue -> Yellow -> Green
 			store_white  = sides[0];
 			store_blue   = sides[1];
@@ -217,7 +215,7 @@ void Cube::rotate(Move move) {
 			insert(sides[4], store_yellow >> 32, RIGHT_MASK); //Left -> Right
             break;
 		case L2:
-			roll<DOUBLE_TURN>(side); //Orange
+			roll<DOUBLE_TURN>(sides[5]); //Orange
 			store_white  = sides[0];
 			store_blue   = sides[1];
 			store_yellow = sides[3];

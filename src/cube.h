@@ -15,25 +15,25 @@ enum Color : uint8_t {
 };
 
 enum Move : uint8_t {
-    D = 0b00000,
+    D = 0b00001,
     F,
     R,
     U,
     B,
     L,
-    Dp = 0b01000,
+    Dp = 0b01001,
     Fp,
     Rp,
     Up,
     Bp,
     Lp,
-    D2 = 0b10000,
+    D2 = 0b10001,
     F2,
     R2,
     U2,
     B2,
     L2,
-    NULL_MOVE = 0b11111
+    NULL_MOVE = 0b00000
 };
 
 inline Move reverse_move(Move move) {
@@ -156,18 +156,18 @@ inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
 enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };
 
 template <MoveType type = CLOCKWISE>
-inline void roll(uint64_t *side) {
-    *side = std::__rotl(*side, 16);
+inline void roll(uint64_t &side) {
+    side = std::__rotl(side, 16);
 }
 
 template <>
-inline void roll<COUNTER_CLOCKWISE>(uint64_t *side) {
-    *side = std::__rotr(*side, 16);
+inline void roll<COUNTER_CLOCKWISE>(uint64_t &side) {
+    side = std::__rotr(side, 16);
 }
 
 template<>
-inline void roll<DOUBLE_TURN>(uint64_t *side) {
-    *side = std::__rotl(*side, 32);
+inline void roll<DOUBLE_TURN>(uint64_t &side) {
+    side = std::__rotl(side, 32);
 }
 
 std::ostream &operator<<(std::ostream &out, const Move move);

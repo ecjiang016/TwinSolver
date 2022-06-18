@@ -156,7 +156,7 @@ inline unsigned int corner_index(int corner_number, Cube &cube) {
 CornerHash::CornerHash() {
     //Precomputes perms
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
         perm[i] = 1;
         //Doing (23 - i)! / 16!
         for (int j = 18; j <= (23 - i); j++) {
@@ -207,33 +207,47 @@ void initCornerDatabase() {
     //Using breadth-first search
     CornerHash corner_hash = CornerHash();
     std::unordered_set<uint32_t> hashes;
-    std::deque<Cube> queue;
+    std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     unsigned int depth = 0;
     
-    queue.push_back(Cube());
+    queue.push_back(uint64_t(0));
 
     while (queue.size() != 0) {
         //Take node out of queue
-        Cube node = queue.front();
+        uint64_t node = queue.front();
         queue.pop_front();
 
+        //Create a cube and move it to the node
+        Cube cube = Cube();
+        unsigned int moves_in_node = 0;
+        uint64_t temp_node = node;
+        while (temp_node) {
+            Move move = Move(temp_node & 0x1F);
+            temp_node = temp_node >> 5;
+            cube.rotate(move);
+            moves_in_node++;
+        }
+        //std::cout << moves_in_node << std::endl;
+
         //Hash stuff
-        uint32_t hash = corner_hash.computeCode(node);
+        uint32_t hash = corner_hash.computeCode(cube);
         if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
             hashes.insert(hash);
 
             //Add all the nodes from that node to the queue
             next_layer_nodes += 18;
             for (Move move : all_moves) {
-                Cube new_node = node;
-                new_node.rotate(move);
+                uint64_t new_node = node;
+                uint64_t inserted_move = uint64_t(move);
+                //std::cout << (5 * (moves_in_node + 1)) << std::endl;
+                new_node |= inserted_move << (5 * moves_in_node);
                 queue.push_back(new_node);
             }
         }
 
         if (queue.size() == next_layer_nodes) {
-            std::cout << "Finished depth " << depth << std::endl;
+            std::cout << "Finished depth " << depth << ", " << hashes.size() << " nodes found" << std::endl;
             depth++;
             next_layer_nodes = 0;
 
@@ -241,6 +255,6 @@ void initCornerDatabase() {
 
     }
 
-    std::cout << hashes.size() << std::endl;
+    
     
 }
