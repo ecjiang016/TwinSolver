@@ -225,7 +225,6 @@ void initCornerDatabase() {
             cube.rotate(move);
             moves_in_node++;
         }
-        //std::cout << moves_in_node << std::endl;
 
         //Hash stuff
         uint32_t hash = corner_hash.computeHash(cube);
@@ -237,7 +236,6 @@ void initCornerDatabase() {
             for (Move move : all_moves) {
                 uint64_t new_node = node;
                 uint64_t inserted_move = uint64_t(move);
-                //std::cout << (5 * (moves_in_node + 1)) << std::endl;
                 new_node |= inserted_move << (5 * moves_in_node);
                 queue.push_back(new_node);
             }
