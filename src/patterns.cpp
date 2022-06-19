@@ -47,7 +47,27 @@
 // Color, 3 bits set accordingly to the 3 colors on the corner piece
 // Example: 0b00000111 = White, blue, and red corner
 
-inline unsigned int corner_index(int corner_number, Cube &cube) {
+CornerHash::CornerHash() {
+    //Precomputes factorials
+    //Stored in reverse order for faster access later
+    //factorials[0] = 8!, factorials[1] = 7!...
+    for (int i = 0; i < 8; i++) {
+        factorials[i] = factorial(8-i);
+    }
+    
+    //Make the bit count lookup table
+    bitCount.reserve(1 << 8);
+    for (unsigned int i = 0; i < (1 << 8); i++) {
+        uint8_t count = 0;
+        unsigned int x = i; // So bits can be removed from x
+        if (x) do { count++; } while (x &= x-1);
+        bitCount[i] = count;
+    }
+}
+
+uint32_t CornerHash::computeHash(Cube &cube) {
+    // Get the corner indices and orientation
+    //
     // Shifts needed:
     // 56 .  8
     // .  .  .
@@ -60,137 +80,114 @@ inline unsigned int corner_index(int corner_number, Cube &cube) {
     uint64_t UD;
     uint64_t FB;
     uint64_t RL;
-    unsigned int colors;
+    uint64_t corners[7]; //Last corner doesn't matter since the first 7 force what the last one will be
 
-    //Get the corner from the cube
-    switch (corner_number) { 
+    FB = cube.sides[1] >> 56;
+    UD = cube.sides[3] >> 40;
+    RL = cube.sides[5] >>  8;
+    corners[0] = FB | UD | RL;
+    uint16_t orient0 = getOrientation(FB, UD);
 
-        case 0:
-            FB = cube.sides[1] >> 56;
-            UD = cube.sides[3] >> 40;
-            RL = cube.sides[5] >>  8;
-            break;
+    FB = cube.sides[1] >>  8;
+    RL = cube.sides[2] >> 56;
+    UD = cube.sides[3] >> 24;
+    corners[1] = FB | UD | RL;
+    uint16_t orient1 = getOrientation(FB, UD);
 
-        case 1:
-            FB = cube.sides[1] >>  8;
-            RL = cube.sides[2] >> 56;
-            UD = cube.sides[3] >> 24;
-            break;
+    UD = cube.sides[0] >> 40;
+    FB = cube.sides[1] >> 24;
+    RL = cube.sides[2] >> 40;
+    corners[2] = FB | UD | RL;
+    uint16_t orient2 = getOrientation(FB, UD);
 
-        case 2:
-            UD = cube.sides[0] >> 40;
-            FB = cube.sides[1] >> 24;
-            RL = cube.sides[2] >> 40;
-            break;
+    UD = cube.sides[0] >> 24;
+    FB = cube.sides[1] >> 40;
+    RL = cube.sides[5] >> 24;
+    corners[3] = FB | UD | RL;
+    uint16_t orient3 = getOrientation(FB, UD);
 
-        case 3:
-            UD = cube.sides[0] >> 24;
-            FB = cube.sides[1] >> 40;
-            RL = cube.sides[5] >> 24;
-            break;
+    RL = cube.sides[2] >>  8;
+    UD = cube.sides[3] >>  8;
+    FB = cube.sides[4] >> 56;
+    corners[4] = FB | UD | RL;
+    uint16_t orient4 = getOrientation(FB, UD);
 
-        case 4:
-            RL = cube.sides[2] >>  8;
-            UD = cube.sides[3] >>  8;
-            FB = cube.sides[4] >> 56;
-            break;
+    UD = cube.sides[3] >> 56;
+    FB = cube.sides[4] >>  8;
+    RL = cube.sides[5] >> 56;
+    corners[5] = FB | UD | RL;
+    uint16_t orient5 = getOrientation(FB, UD);
 
-        case 5:
-            UD = cube.sides[3] >> 56;
-            FB = cube.sides[4] >>  8;
-            RL = cube.sides[5] >> 56;
-            break;
+    UD = cube.sides[0] >>  8;
+    FB = cube.sides[4] >> 24;
+    RL = cube.sides[5] >> 40;
+    corners[6] = FB | UD | RL;
+    uint16_t orient6 = getOrientation(FB, UD);
 
-        case 6:
-            UD = cube.sides[0] >>  8;
-            FB = cube.sides[4] >> 24;
-            RL = cube.sides[5] >> 40;
-            break;
-
-        case 7:
-            UD = cube.sides[0] >> 56;
-            RL = cube.sides[2] >> 24;
-            FB = cube.sides[4] >> 40;
-            break;
-    }
+    /* This corner isn't needed as the last corner can be inferred from the rest of the corners
+    UD = cube.sides[0] >> 56;
+    RL = cube.sides[2] >> 24;
+    FB = cube.sides[4] >> 40;
+    corner_indices[7] = FB | UD | RL;
+    uint16_t orient7 = getOrientation(FB, UD);
+    */
 
     //Convert the corner to an index
-    switch ((UD | RL | FB) & 0xFF) {
-        case 0b101010:
-            colors = 0;
-            break;
-        case 0b001110:
-            colors = 1;
-            break;
-        case 0b000111:
-            colors = 2;
-            break;
-        case 0b100011:
-            colors = 3;
-            break;
-        case 0b011100:
-            colors = 4;
-            break;
-        case 0b111000:
-            colors = 5;
-            break;
-        case 0b110001:
-            colors = 6;
-            break;
-        case 0b010101:
-            colors = 7;
-            break;
-        default:
-            std::cout << "Error\n";
-    }
-
-    if (UD & WHITE_YELLOW) {
-        return colors;
-    } else if (FB & WHITE_YELLOW) {
-        return colors + 8;
-    } else {
-        return colors + 16;
-    }
-}
-
-CornerHash::CornerHash() {
-    //Precomputes perms
-
+    unsigned int corner_indices[7];
     for (int i = 0; i < 7; i++) {
-        perm[i] = 1;
-        //Doing (23 - i)! / 16!
-        for (int j = 18; j <= (23 - i); j++) {
-            perm[i] *= j;
+        switch (corners[i] & 0xFF) {
+            case 0b101010:
+                corner_indices[i] = 0;
+                break;
+            case 0b001110:
+                corner_indices[i] = 1;
+                break;
+            case 0b000111:
+                corner_indices[i] = 2;
+                break;
+            case 0b100011:
+                corner_indices[i] = 3;
+                break;
+            case 0b011100:
+                corner_indices[i] = 4;
+                break;
+            case 0b111000:
+                corner_indices[i] = 5;
+                break;
+            case 0b110001:
+                corner_indices[i] = 6;
+                break;
+            case 0b010101:
+                corner_indices[i] = 7;
+                break;
+            default:
+                std::cout << "Error\n";
         }
     }
-    
-    //Make the bit count lookup table
-    bitCount.reserve(1 << 24);
-    for (unsigned int i = 0; i < (1 << 24); i++) {
-        uint8_t count = 0;
-        unsigned int x = i; // So bits can be removed from x
-        if (x) do { count++; } while (x &= x-1);
-        bitCount[i] = count;
-    }
-}
 
-uint32_t CornerHash::computeCode(Cube &cube) {
-    uint32_t bit_string = 0;
-    uint32_t code = 0;
+    //Compute the Lehmer code of the corner permutation
+    uint8_t bit_string = 0;
+    uint32_t corner_code = 0;
 
-    //Compute the Lehmer code
     for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
-        unsigned int index = corner_index(i, cube);
-        bit_string |= uint32_t(1) << (23 - index);
+        unsigned int index = corner_indices[i];
+        bit_string |= uint8_t(0b10000000) >> index;
 
-        if (i != 0) { //The first digit of the Lehmer code doesn't depend on the others so jump ahead
-            index -= bitCount[bit_string >> (24-index)];
+        if (i == 0) { //The first digit of the Lehmer code doesn't depend on the others so need for the bit count
+            corner_code += index * factorials[i]; //Translate into base 10
+            continue;
         }
 
-        code += index * perm[i]; //Translate into base 10
+        index -= bitCount[bit_string >> (8 - index)];
+        corner_code += index * factorials[i]; //Translate into base 10
+
     }
 
-    return code;
+    //Hash = corner_code * 3^7 + orientation_code
+    uint32_t orientation_code = getOrientationCode(orient0, orient1, orient2, orient3, orient4, orient5, orient6);
+    uint32_t hash = (corner_code * 2187) + orientation_code;
+
+    return hash;
 }
 
 struct CornerHashPair {
@@ -231,7 +228,7 @@ void initCornerDatabase() {
         //std::cout << moves_in_node << std::endl;
 
         //Hash stuff
-        uint32_t hash = corner_hash.computeCode(cube);
+        uint32_t hash = corner_hash.computeHash(cube);
         if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
             hashes.insert(hash);
 
@@ -247,14 +244,12 @@ void initCornerDatabase() {
         }
 
         if (queue.size() == next_layer_nodes) {
-            std::cout << "Finished depth " << depth << ", " << hashes.size() << " nodes found" << std::endl;
+            std::cout << "Finished depth " << depth << ", " << hashes.size() << " unique nodes found" << std::endl;
             depth++;
             next_layer_nodes = 0;
 
         }
 
     }
-
-    
     
 }

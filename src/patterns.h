@@ -35,12 +35,30 @@ void initCornerDatabase();
 
 class CornerHash {
   private:
-    unsigned int perm[7]; // (24-1-i)P(8-1-i)
-    std::vector<int> bitCount; //Big boi look up table. There are 2^24 possible bit combiniations
+    unsigned int factorials[7]; //Look up table for factorials
+    std::vector<unsigned int> bitCount; //Look up table for the number of set bits. There are 2^8 possible bit combiniations
+
+    inline uint16_t getOrientation(uint64_t FB, uint64_t UD) {
+		if (UD & WHITE_YELLOW) {
+			return 0;
+		} else if (FB & WHITE_YELLOW) {
+			return 1;
+		} else {
+			return 2;
+    	}
+    }
+
+	inline uint32_t getOrientationCode(uint16_t orient0, uint16_t orient1, uint16_t orient2,
+		uint16_t orient3, uint16_t orient4, uint16_t orient5, uint16_t orient6)	{
+
+		//Equivalent of converting from base 3 to base 10
+		return (orient6 * 729) + (orient5 * 243) + (orient4 * 81) + (orient3 * 27) + (orient2 * 9) + (orient1 * 3) + orient0;
+
+	}
 
   public:
     CornerHash();
 
-    uint32_t computeCode(Cube &cube);
+    uint32_t computeHash(Cube &cube);
 
 };
