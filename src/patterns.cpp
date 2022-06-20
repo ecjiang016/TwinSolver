@@ -50,9 +50,9 @@
 CornerHash::CornerHash() {
     //Precomputes factorials
     //Stored in reverse order for faster access later
-    //factorials[0] = 8!, factorials[1] = 7!...
+    //factorials[0] = 7!, factorials[1] = 6!...
     for (int i = 0; i < 8; i++) {
-        factorials[i] = factorial(8-i);
+        factorials[i] = factorial(7-i);
     }
     
     //Make the bit count lookup table
@@ -190,23 +190,16 @@ uint32_t CornerHash::computeHash(Cube &cube) {
     return hash;
 }
 
-struct CornerHashPair {
-    uint32_t hash;
-    uint8_t data;
+template<class Hash, uint32_t DatabaseSize>
+void buildDatabase() { 
+    std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
-    CornerHashPair(uint32_t input_hash, uint8_t input_data) {
-        hash = hash;
-        data = data;
-    }
-};
-
-void initCornerDatabase() { 
     //Using breadth-first search
-    CornerHash corner_hash = CornerHash();
+    Hash corner_hash = Hash();
     std::unordered_set<uint32_t> hashes;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
-    unsigned int depth = 0;
+    uint8_t depth = 0;
     
     queue.push_back(uint64_t(0));
 
@@ -229,7 +222,9 @@ void initCornerDatabase() {
         //Hash stuff
         uint32_t hash = corner_hash.computeHash(cube);
         if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
+            //Add hash to cache and insert it in the pattern database array
             hashes.insert(hash);
+            hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
 
             //Add all the nodes from that node to the queue
             next_layer_nodes += 18;
@@ -242,12 +237,15 @@ void initCornerDatabase() {
         }
 
         if (queue.size() == next_layer_nodes) {
-            std::cout << "Finished depth " << depth << ", " << hashes.size() << " unique nodes found" << std::endl;
+            std::cout << "Finished depth " << int(depth) << ", " << hashes.size() << " unique nodes found" << std::endl;
             depth++;
             next_layer_nodes = 0;
-
         }
 
     }
     
+}
+
+void buildAllDatabases() {
+    buildDatabase<CornerHash, 88179840>(); //8! * 3^7 possibilities 
 }

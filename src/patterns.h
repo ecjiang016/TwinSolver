@@ -25,13 +25,19 @@ const uint64_t CORNER_MASK_7 = CORNER_MASK_3;
 
 const uint64_t WHITE_YELLOW = WHITE | YELLOW;
 
+struct Nibbles {
+    uint8_t byte;
+    inline void insertHigh(uint8_t data) { this->byte |= data << 4; }
+    inline void insertLow(uint8_t data)  { this->byte |= data; }
+};
+
 inline int factorial(int n) {
     return n <= 1 ? 1 : n * factorial(n - 1);
 }
 
 uint64_t getCorner(int corner_number, Cube &cube);
 int corner_index(uint64_t corner);
-void initCornerDatabase();
+void buildAllDatabases();
 
 class CornerHash {
   private:
@@ -58,7 +64,13 @@ class CornerHash {
 
   public:
     CornerHash();
-
     uint32_t computeHash(Cube &cube);
+};
 
+class EdgeHash7 {
+  private:
+	unsigned int permutations[7]; //Look up table for permutations
+  public:
+	EdgeHash7();
+	uint32_t computeHash(Cube &cube);
 };
