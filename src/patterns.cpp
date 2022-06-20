@@ -51,7 +51,7 @@ CornerHash::CornerHash() {
     //Precomputes factorials
     //Stored in reverse order for faster access later
     //factorials[0] = 7!, factorials[1] = 6!...
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
         factorials[i] = factorial(7-i);
     }
     
