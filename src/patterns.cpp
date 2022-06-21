@@ -38,13 +38,8 @@
 //
 //
 // Stored as an unsigned 64 bit integer
-//                       | Orientation | Colors
-// Anatomy of a byte:  0b| 00          | 000000
-//
-// Orientation based on the direction the white/yellow sticker is facing
-// 00 - Up/Down
-// 01 - Forward/Backward
-// 10 - Right/Left
+//                       | Literally nothing | Colors
+// Anatomy of a byte:  0b| 00                | 000000
 //
 // Color, 3 bits set accordingly to the 3 colors on the corner piece
 // Example: 0b00000111 = White, blue, and red corner
