@@ -290,8 +290,8 @@ uint32_t EdgePermHash::computeHash(Cube &cube) {
 
     //Convert the edge to an index
     unsigned int edge_indices[11];
-    for (int i = 0; i < 7; i++) {
-        switch (__EDG_TYPE_TRAITS_ENABLED[i] & 0xFF) {
+    for (int i = 0; i < 11; i++) {
+        switch (edges[i] & 0xFF) {
             case 0b001010:
                 edge_indices[i] = 0;
                 break;
@@ -391,13 +391,9 @@ uint32_t Edge7Hash::computeHash(Cube &cube) {
     return (edge_code * 128) + orientation_code;
 }
 
-template<class Hash = CornerHash>
-std::string databaseName() { // A helper function to get the database file names
-    return "corner.patterns";
-}
-
 template<class Hash, size_t DatabaseSize>
-void buildDatabase() { 
+void buildDatabase(std::string save_file_name) {
+    std::cout << "Building " << save_file_name << "...\n";
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search
@@ -453,14 +449,16 @@ void buildDatabase() {
     }
 
     std::ofstream file;
-    file.open("./databases/" + databaseName<Hash>(), std::ios_base::binary);
+    file.open("./databases/" + save_file_name, std::ios_base::binary);
     assert(file.is_open());
     assert(((DatabaseSize + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
     file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
     file.close();
+    std::cout << save_file_name << " has been built\n\n";
 }
 
 void buildAllDatabases() {
-    buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>(); //8! * 3^7 possibilities 
+    buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>("Corner.patterns");
+    buildDatabase<EdgePermHash, EDGE_PERM_PATTERNS_SIZE>("EdgePerm.patterns");
 }

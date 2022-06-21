@@ -4,7 +4,8 @@
 #include <fstream>
 #include <stdint.h>
 
-const size_t CORNER_PATTERNS_SIZE = 88179840;
+const size_t CORNER_PATTERNS_SIZE    =  88179840; // 8! * 3^7
+const size_t EDGE_PERM_PATTERNS_SIZE = 479001600; // 12!
 
 // Masks
 //
