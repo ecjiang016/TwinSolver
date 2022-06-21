@@ -186,7 +186,217 @@ uint32_t CornerHash::computeHash(Cube &cube) {
     return hash;
 }
 
-template<class Hash, std::string &DatabaseName, size_t DatabaseSize>
+EdgePermHash::EdgePermHash() {
+    //Precomputes factorials
+    //Stored in reverse order for faster access later
+    //factorials[0] = 11!, factorials[1] = 10!...
+    for (int i = 0; i < 11; i++) {
+        factorials[i] = factorial(11-i);
+    }
+    
+    //Make the bit count lookup table
+    bitCount.reserve(1 << 12);
+    for (unsigned int i = 0; i < (1 << 12); i++) {
+        uint8_t count = 0;
+        unsigned int x = i; // So bits can be removed from x
+        if (x) do { count++; } while (x &= x-1);
+        bitCount[i] = count;
+    }
+}
+
+// Conrner indices:
+// *White is not portrayed upside down
+//
+//         . 2 .
+//         3 Y 1
+//         . 0 .
+//
+// . 3 .   . 0 .   . 1 .   . 2 .
+// 6 O 7   7 B 4   4 R 5   5 G 6
+// .11 .   . 8 .   . 9 .   . 10 .
+//
+//         .10 .
+//         9 W 11
+//         . 8 .
+
+uint32_t EdgePermHash::computeHash(Cube &cube) {
+    // Get the edge indices
+    //
+    // Shifts needed:
+    // .  0  .
+    // 48 . 16
+    // . 32  .
+    //
+    // Cube sides indices:
+    // W B R Y G O
+    // 0 1 2 3 4 5
+
+    uint64_t WYRO; 
+    uint64_t BGRO;
+    uint64_t edges[11]; //Last edge doesn't matter since the first 11 determine what the last one will be
+
+    //Top layer
+    WYRO = cube.sides[3] >> 32;
+    BGRO = cube.sides[1];
+    edges[0] = WYRO | BGRO;
+
+    WYRO = cube.sides[3] >> 16;
+    BGRO = cube.sides[2];
+    edges[1] = WYRO | BGRO;
+
+    WYRO = cube.sides[3];
+    BGRO = cube.sides[4];
+    edges[2] = WYRO | BGRO;
+
+    WYRO = cube.sides[3] >> 48;
+    BGRO = cube.sides[5];
+    edges[3] = WYRO | BGRO;
+
+    //Middle layer
+    WYRO = cube.sides[2] >> 48;
+    BGRO = cube.sides[1] >> 16;
+    edges[4] = WYRO | BGRO;
+
+    WYRO = cube.sides[2] >> 16;
+    BGRO = cube.sides[4] >> 48;
+    edges[5] = WYRO | BGRO;
+
+    WYRO = cube.sides[5] >> 48;
+    BGRO = cube.sides[4] >> 16;
+    edges[6] = WYRO | BGRO;
+
+    WYRO = cube.sides[5] >> 16;
+    BGRO = cube.sides[1] >> 48;
+    edges[7] = WYRO | BGRO;
+
+    //Bottom layer
+    WYRO = cube.sides[0] >> 32;
+    BGRO = cube.sides[1] >> 32;
+    edges[8] = WYRO | BGRO;
+
+    WYRO = cube.sides[0] >> 48;
+    BGRO = cube.sides[2] >> 32;
+    edges[9] = WYRO | BGRO;
+
+    WYRO = cube.sides[0];
+    BGRO = cube.sides[4] >> 32;
+    edges[10] = WYRO | BGRO;
+
+    /* Last edge doesn't matter since the first 11 determine what the last one will be
+    WYRO = cube.sides[0] >> 16;
+    BGRO = cube.sides[5] >> 32;
+    edges[11] = WYRO | BGRO;
+    */
+
+    //Convert the edge to an index
+    unsigned int edge_indices[11];
+    for (int i = 0; i < 7; i++) {
+        switch (__EDG_TYPE_TRAITS_ENABLED[i] & 0xFF) {
+            case 0b001010:
+                edge_indices[i] = 0;
+                break;
+            case 0b001100:
+                edge_indices[i] = 1;
+                break;
+            case 0b011000:
+                edge_indices[i] = 2;
+                break;
+            case 0b101000:
+                edge_indices[i] = 3;
+                break;
+            case 0b000110:
+                edge_indices[i] = 4;
+                break;
+            case 0b010100:
+                edge_indices[i] = 5;
+                break;
+            case 0b110000:
+                edge_indices[i] = 6;
+                break;
+            case 0b100010:
+                edge_indices[i] = 7;
+                break;
+            case 0b000011:
+                edge_indices[i] = 8;
+                break;
+            case 0b000101:
+                edge_indices[i] = 9;
+                break;
+            case 0b010001:
+                edge_indices[i] = 10;
+                break;
+            case 0b100001:
+                edge_indices[i] = 11;
+                break;
+            default:
+                std::cout << "Error\n";
+        }
+    }
+
+    //Compute the Lehmer code of the edge permutation
+    uint16_t bit_string = 0;
+    uint32_t hash = 0;
+
+    for (int i = 0; i < 11; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
+        unsigned int index = edge_indices[i];
+        bit_string |= uint16_t(0b100000000000) >> index;
+
+        if (i == 0) { //The first digit of the Lehmer code doesn't depend on the others so need for the bit count
+            hash += index * factorials[i]; //Translate into base 10
+            continue;
+        }
+
+        index -= bitCount[bit_string >> (12 - index)];
+        hash += index * factorials[i]; //Translate into base 10
+
+    }
+
+    return hash;
+
+}
+
+Edge7Hash::Edge7Hash() {
+    //Precomputes permutations (12-1-i)P(7-1-i)
+    for (int i = 0; i < 7; i++) {
+        permutations[i] = factorial(11-i) / 120;
+    }
+    
+    //Make the bit count lookup table
+    bitCount.reserve(1 << 7);
+    for (unsigned int i = 0; i < (1 << 7); i++) {
+        uint8_t count = 0;
+        unsigned int x = i; // So bits can be removed from x
+        if (x) do { count++; } while (x &= x-1);
+        bitCount[i] = count;
+    }
+}
+
+uint32_t Edge7Hash::computeHash(Cube &cube) {
+    uint64_t edge_indices[7];
+    uint64_t orientation_code;
+    
+    //Get Lehmer code of edge permutation
+    uint8_t bit_string = 0;
+    uint32_t edge_code = 0;
+    for (int i = 0; i < 6; i++) { 
+        uint64_t index = edge_indices[i];
+        bit_string |= uint8_t(0b01000000) >> index;
+        if (i == 0) {
+            edge_code += index * permutations[i];
+            continue;
+        }
+        index -= bitCount[bit_string >> (8 - index)];
+        edge_code += index * permutations[i];
+    }
+    return (edge_code * 128) + orientation_code;
+}
+
+template<class Hash = CornerHash>
+std::string databaseName() { // A helper function to get the database file names
+    return "corner.patterns";
+}
+
+template<class Hash, size_t DatabaseSize>
 void buildDatabase() { 
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
@@ -243,7 +453,7 @@ void buildDatabase() {
     }
 
     std::ofstream file;
-    file.open("./databases/" + DatabaseName, std::ios_base::binary);
+    file.open("./databases/" + databaseName<Hash>(), std::ios_base::binary);
     assert(file.is_open());
     assert(((DatabaseSize + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
@@ -252,6 +462,5 @@ void buildDatabase() {
 }
 
 void buildAllDatabases() {
-    static std::string corner_patterns = "corner.patterns";
-    buildDatabase<CornerHash, corner_patterns, CORNER_PATTERNS_SIZE>(); //8! * 3^7 possibilities 
+    buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>(); //8! * 3^7 possibilities 
 }

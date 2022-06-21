@@ -72,11 +72,21 @@ class CornerHash {
     uint32_t computeHash(Cube &cube);
 };
 
-class EdgeHash7 {
+class EdgePermHash {
+  private:
+	unsigned int factorials[11]; //Look up table for factorials
+	std::vector<unsigned int> bitCount; //Look up table for the number of set bits. There are 2^12 possible bit combiniations
+  public:
+	EdgePermHash();
+	uint32_t computeHash(Cube &cube);
+};
+
+class Edge7Hash {
   private:
 	unsigned int permutations[7]; //Look up table for permutations
+	std::vector<unsigned int> bitCount; //Look up table for the number of set bits. There are 2^7 possible bit combiniations
   public:
-	EdgeHash7();
+	Edge7Hash();
 	uint32_t computeHash(Cube &cube);
 };
 
