@@ -1,7 +1,6 @@
 #include "patterns.h"
 #include <unordered_set>
 #include <deque>
-#include <fstream>
 #include <assert.h>
 
 // Cube layout:
@@ -187,13 +186,13 @@ uint32_t CornerHash::computeHash(Cube &cube) {
     return hash;
 }
 
-template<class Hash, std::string &DatabaseName, uint32_t DatabaseSize>
+template<class Hash, std::string &DatabaseName, size_t DatabaseSize>
 void buildDatabase() { 
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search
     Hash corner_hash = Hash();
-    std::unordered_set<uint32_t> hashes;
+    std::unordered_set<size_t> hashes;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 0;
@@ -254,5 +253,5 @@ void buildDatabase() {
 
 void buildAllDatabases() {
     static std::string corner_patterns = "corner.patterns";
-    buildDatabase<CornerHash, corner_patterns, 88179840>(); //8! * 3^7 possibilities 
+    buildDatabase<CornerHash, corner_patterns, CORNER_PATTERNS_SIZE>(); //8! * 3^7 possibilities 
 }

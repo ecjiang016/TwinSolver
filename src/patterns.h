@@ -1,7 +1,10 @@
 #pragma once
 #include "cube.h"
 #include <vector>
+#include <fstream>
 #include <stdint.h>
+
+const size_t CORNER_PATTERNS_SIZE = 88179840;
 
 // Masks
 //
@@ -29,6 +32,8 @@ struct Nibbles {
     uint8_t byte;
     inline void insertHigh(uint8_t data) { this->byte |= data << 4; }
     inline void insertLow(uint8_t data)  { this->byte |= data; }
+    inline uint8_t getHigh() { return (this->byte >> 4) & uint8_t(0xF); }
+    inline uint8_t getLow()  { return this->byte & uint8_t(0xF); }
 };
 
 inline int factorial(int n) {
@@ -73,4 +78,28 @@ class EdgeHash7 {
   public:
 	EdgeHash7();
 	uint32_t computeHash(Cube &cube);
+};
+
+template<class Hash, size_t DatabaseSize>
+class Patterns {
+  private:
+    Hash hash;
+    std::vector<Nibbles> depths;
+  public:
+    Patterns(std::string file_name) {
+        std::ifstream file;
+        file.open(file_name, std::ios::binary);
+        file.seekg(0, std::ios::end);
+        size_t file_size = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        depths.reserve((DatabaseSize + 1) / 2);
+        file.read(reinterpret_cast<char *>(depths.data()), file_size);
+    }
+
+    inline uint8_t getDepth(Cube &cube) {
+        uint32_t cube_hash = hash.computeHash(cube);
+        Nibbles nibbles = depths[cube_hash / 2];
+        return (cube_hash % 2 == 0) ? nibbles.getLow() : nibbles.getHigh();
+    }
 };
