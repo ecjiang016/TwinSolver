@@ -2,8 +2,9 @@
 
 bool Cube::inG1() {
 	return !((sides[1] | sides[2] | sides[4] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // If all edge pieces that belong in the middle layer are in the middle layer
-	!((sides[0] | sides[3]) & EDGE_MASK   & ~(SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // Check if the rest of the edges are oriented
-	!((sides[0] | sides[3]) & CORNER_MASK & ~(SOLID_FACE_WHITE | SOLID_FACE_YELLOW)); // Check if all the corners are oriented
+    !((sides[1] | sides[4]) & MIDDLE_MASK & (SOLID_FACE_RED | SOLID_FACE_ORANGE)) && //Check if the middle layer edges are oriented
+    !((sides[2] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_BLUE | SOLID_FACE_GREEN)) &&
+	!((sides[0] | sides[3]) & ~(SOLID_FACE_WHITE | SOLID_FACE_YELLOW)); // Check if the rest of the corners and edges are oriented
 }
 
 void Cube::rotate(Move move) {
