@@ -1,6 +1,8 @@
 #include "patterns.h"
 #include <unordered_set>
 #include <deque>
+#include <fstream>
+#include <assert.h>
 
 // Cube layout:
 // White is actually upside down (180 degree turn)
@@ -190,7 +192,7 @@ uint32_t CornerHash::computeHash(Cube &cube) {
     return hash;
 }
 
-template<class Hash, uint32_t DatabaseSize>
+template<class Hash, std::string &DatabaseName, uint32_t DatabaseSize>
 void buildDatabase() { 
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
@@ -237,15 +239,25 @@ void buildDatabase() {
         }
 
         if (queue.size() == next_layer_nodes) {
+            if (queue.size() == 0) { break; }
+            
             std::cout << "Finished depth " << int(depth) << ", " << hashes.size() << " unique nodes found" << std::endl;
             depth++;
             next_layer_nodes = 0;
         }
 
     }
-    
+
+    std::ofstream file;
+    file.open("./databases/" + DatabaseName, std::ios_base::binary);
+    assert(file.is_open());
+    assert(((DatabaseSize + 1) / 2) == pattern_depths.size());
+    std::cout << "Writing depths..." << std::endl;
+    file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
+    file.close();
 }
 
 void buildAllDatabases() {
-    buildDatabase<CornerHash, 88179840>(); //8! * 3^7 possibilities 
+    static std::string corner_patterns = "corner.patterns";
+    buildDatabase<CornerHash, corner_patterns, 88179840>(); //8! * 3^7 possibilities 
 }
