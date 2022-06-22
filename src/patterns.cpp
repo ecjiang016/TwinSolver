@@ -204,7 +204,7 @@ EdgePermHash::EdgePermHash() {
     }
 }
 
-// Conrner indices:
+// Edge indices:
 // *White is not portrayed upside down
 //
 //         . 2 .
@@ -355,50 +355,14 @@ uint32_t EdgePermHash::computeHash(Cube &cube) {
 
 }
 
-Edge7Hash::Edge7Hash() {
-    //Precomputes permutations (12-1-i)P(7-1-i)
-    for (int i = 0; i < 7; i++) {
-        permutations[i] = factorial(11-i) / 120;
-    }
-    
-    //Make the bit count lookup table
-    bitCount.reserve(1 << 7);
-    for (unsigned int i = 0; i < (1 << 7); i++) {
-        uint8_t count = 0;
-        unsigned int x = i; // So bits can be removed from x
-        if (x) do { count++; } while (x &= x-1);
-        bitCount[i] = count;
-    }
-}
-
-uint32_t Edge7Hash::computeHash(Cube &cube) {
-    uint64_t edge_indices[7];
-    uint64_t orientation_code;
-    
-    //Get Lehmer code of edge permutation
-    uint8_t bit_string = 0;
-    uint32_t edge_code = 0;
-    for (int i = 0; i < 6; i++) { 
-        uint64_t index = edge_indices[i];
-        bit_string |= uint8_t(0b01000000) >> index;
-        if (i == 0) {
-            edge_code += index * permutations[i];
-            continue;
-        }
-        index -= bitCount[bit_string >> (8 - index)];
-        edge_code += index * permutations[i];
-    }
-    return (edge_code * 128) + orientation_code;
-}
-
 template<class Hash, size_t DatabaseSize>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search
-    Hash corner_hash = Hash();
-    std::unordered_set<size_t> hashes;
+    Hash hash_function = Hash();
+    std::unordered_set<uint32_t> hashes;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 0;
@@ -422,7 +386,7 @@ void buildDatabase(std::string save_file_name) {
         }
 
         //Hash stuff
-        uint32_t hash = corner_hash.computeHash(cube);
+        uint32_t hash = hash_function.computeHash(cube);
         if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
             //Add hash to cache and insert it in the pattern database array
             hashes.insert(hash);
@@ -459,6 +423,7 @@ void buildDatabase(std::string save_file_name) {
 }
 
 void buildAllDatabases() {
-    buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>("Corner.patterns");
-    buildDatabase<EdgePermHash, EDGE_PERM_PATTERNS_SIZE>("EdgePerm.patterns");
+    //buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>("Corner.patterns");
+    //buildDatabase<EdgePermHash, EDGE_PERM_PATTERNS_SIZE>("EdgePerm.patterns");
+    buildDatabase<Edge7Hash<0>, EDGE_7_PATTERNS_SIZE>("Edge7Hash.patterns");
 }
