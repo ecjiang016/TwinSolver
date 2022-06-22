@@ -385,21 +385,23 @@ void buildDatabase(std::string save_file_name) {
             moves_in_node++;
         }
 
-        //Hash stuff
-        uint32_t hash = hash_function.computeHash(cube);
-        if (hashes.find(hash) == hashes.end()) { // Cube state hasn't been visited before
+        //Add all the nodes from that node to the queue
+        for (Move move : all_moves) {
+            cube.rotate(move);
+            uint32_t hash = hash_function.computeHash(cube);
+            if (hashes.find(hash) != hashes.end()) { continue; } //Prune if visited before
+                
             //Add hash to cache and insert it in the pattern database array
             hashes.insert(hash);
             hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
 
-            //Add all the nodes from that node to the queue
-            next_layer_nodes += 18;
-            for (Move move : all_moves) {
-                uint64_t new_node = node;
-                uint64_t inserted_move = uint64_t(move);
-                new_node |= inserted_move << (5 * moves_in_node);
-                queue.push_back(new_node);
-            }
+            cube.rotate(reverse_move(move));
+            uint64_t new_node = node;
+            uint64_t inserted_move = uint64_t(move);
+            new_node |= inserted_move << (5 * moves_in_node);
+            queue.push_back(new_node);
+            next_layer_nodes++;
+            
         }
 
         if (queue.size() == next_layer_nodes) {
