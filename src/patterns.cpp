@@ -291,7 +291,7 @@ uint32_t EdgePermHash::computeHash(Cube &cube) {
     //Convert the edge to an index
     unsigned int edge_indices[11];
     for (int i = 0; i < 11; i++) {
-        switch (edges[i] & 0xFF) {
+        switch (0b111111 & edges[i]) {
             case 0b001010:
                 edge_indices[i] = 0;
                 break;
@@ -331,6 +331,7 @@ uint32_t EdgePermHash::computeHash(Cube &cube) {
             default:
                 std::cout << "Error\n";
         }
+
     }
 
     //Compute the Lehmer code of the edge permutation
@@ -358,16 +359,23 @@ uint32_t EdgePermHash::computeHash(Cube &cube) {
 template<class Hash, size_t DatabaseSize>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
-    std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
+    std::vector<Nibbles> pattern_depths(DatabaseSize / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search
     Hash hash_function = Hash();
     std::unordered_set<uint32_t> hashes;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
-    uint8_t depth = 0;
+    uint8_t depth = 1;
     
+    //Process the first node
+    Cube init_cube = Cube();
+    int32_t hash = hash_function.computeHash(init_cube);
+    hashes.insert(hash);
+    hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
     queue.push_back(uint64_t(0));
+
+    unsigned int counter = 0;
 
     while (queue.size() != 0) {
         //Take node out of queue
@@ -387,15 +395,17 @@ void buildDatabase(std::string save_file_name) {
 
         //Add all the nodes from that node to the queue
         for (Move move : all_moves) {
-            cube.rotate(move);
-            uint32_t hash = hash_function.computeHash(cube);
+            //cube.rotate(move);
+            Cube new_cube = cube;
+            new_cube.rotate(move);
+            uint32_t hash = hash_function.computeHash(new_cube);
             if (hashes.find(hash) != hashes.end()) { continue; } //Prune if visited before
                 
             //Add hash to cache and insert it in the pattern database array
             hashes.insert(hash);
             hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
 
-            cube.rotate(reverse_move(move));
+            //cube.rotate(reverse_move(move));
             uint64_t new_node = node;
             uint64_t inserted_move = uint64_t(move);
             new_node |= inserted_move << (5 * moves_in_node);
@@ -412,6 +422,11 @@ void buildDatabase(std::string save_file_name) {
             next_layer_nodes = 0;
         }
 
+        if (queue.size() > counter) {
+            std::cout << queue.size() << std::endl;
+            counter += 10000000;
+        }
+
     }
 
     std::ofstream file;
@@ -426,6 +441,8 @@ void buildDatabase(std::string save_file_name) {
 
 void buildAllDatabases() {
     //buildDatabase<CornerHash, CORNER_PATTERNS_SIZE>("Corner.patterns");
+    //buildDatabase<Edge6Hash, EDGE_6_PATTERNS_SIZE>("Edge6Hash.patterns");
+    buildDatabase<Edge7Hash<0>, EDGE_7_PATTERNS_SIZE>("Edge7Hash0.patterns");
+    //buildDatabase<Edge7Hash<1>, EDGE_7_PATTERNS_SIZE>("Edge7Hash1.patterns");
     //buildDatabase<EdgePermHash, EDGE_PERM_PATTERNS_SIZE>("EdgePerm.patterns");
-    buildDatabase<Edge7Hash<0>, EDGE_7_PATTERNS_SIZE>("Edge7Hash.patterns");
 }

@@ -7,6 +7,7 @@
 const size_t CORNER_PATTERNS_SIZE    =  88179840; // 8! * 3^7
 const size_t EDGE_PERM_PATTERNS_SIZE = 479001600; // 12!
 const size_t EDGE_7_PATTERNS_SIZE    = 510935040; // 12P7 * 2^7
+const size_t EDGE_6_PATTERNS_SIZE    = 42577920;
 
 // Masks
 //
@@ -90,8 +91,10 @@ class Edge7Hash {
 	unsigned int permutations[7]; //Look up table for permutations
 	std::vector<unsigned int> bitCount; //Look up table for the number of set bits. There are 2^7 possible bit combiniations
 
-    template<uint64_t orient_colors>
-    inline uint8_t getOrientation(uint64_t WYRO) { return (WYRO & orient_colors) ? 1 : 0; }
+    inline uint8_t getOrientation(uint64_t &edge_index, uint64_t &WYRO) { 
+        if (edge_index & WHITE_YELLOW) { return (WYRO & WHITE_YELLOW) ? 1 : 0; }
+        else { return (WYRO & RED_ORANGE) ? 1 : 0; }
+    }
 
   public:
 	Edge7Hash() {
@@ -154,74 +157,74 @@ class Edge7Hash {
             WYRO = cube.sides[3] >> 32;
             BGRO = cube.sides[1];
             edges[0] = WYRO | BGRO;
-            orient0 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient0 = getOrientation(edges[0], WYRO);
 
             WYRO = cube.sides[3] >> 16;
             BGRO = cube.sides[2];
             edges[1] = WYRO | BGRO;
-            orient1 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient1 = getOrientation(edges[1], WYRO);
 
             WYRO = cube.sides[3];
             BGRO = cube.sides[4];
             edges[2] = WYRO | BGRO;
-            orient2 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient2 = getOrientation(edges[2], WYRO);
 
             WYRO = cube.sides[3] >> 48;
             BGRO = cube.sides[5];
             edges[3] = WYRO | BGRO;
-            orient3 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient3 = getOrientation(edges[3], WYRO);
 
             WYRO = cube.sides[2] >> 48;
             BGRO = cube.sides[1] >> 16;
             edges[4] = WYRO | BGRO;
-            orient4 = getOrientation<RED_ORANGE>(WYRO);
+            orient4 = getOrientation(edges[4], WYRO);
 
             WYRO = cube.sides[2] >> 16;
             BGRO = cube.sides[4] >> 48;
             edges[5] = WYRO | BGRO;
-            orient5 = getOrientation<RED_ORANGE>(WYRO);
+            orient5 = getOrientation(edges[5], WYRO);
 
             WYRO = cube.sides[5] >> 48;
             BGRO = cube.sides[4] >> 16;
             edges[6] = WYRO | BGRO;
-            orient6 = getOrientation<RED_ORANGE>(WYRO);
+            orient6 = getOrientation(edges[6], WYRO);
 
-        } else if (selected_edges == 1) {
+        } else {
 
             WYRO = cube.sides[2] >> 16;
             BGRO = cube.sides[4] >> 48;
             edges[0] = WYRO | BGRO;
-            orient0 = getOrientation<RED_ORANGE>(WYRO);
+            orient0 = getOrientation(edges[0], WYRO);
 
             WYRO = cube.sides[5] >> 48;
             BGRO = cube.sides[4] >> 16;
             edges[1] = WYRO | BGRO;
-            orient1 = getOrientation<RED_ORANGE>(WYRO);
+            orient1 = getOrientation(edges[1], WYRO);
 
             WYRO = cube.sides[5] >> 16;
             BGRO = cube.sides[1] >> 48;
             edges[2] = WYRO | BGRO;
-            orient2 = getOrientation<RED_ORANGE>(WYRO);
+            orient2 = getOrientation(edges[2], WYRO);
 
             WYRO = cube.sides[0] >> 32;
             BGRO = cube.sides[1] >> 32;
             edges[3] = WYRO | BGRO;
-            orient3 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient3 = getOrientation(edges[3], WYRO);
 
             WYRO = cube.sides[0] >> 48;
             BGRO = cube.sides[2] >> 32;
             edges[4] = WYRO | BGRO;
-            orient4 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient4 = getOrientation(edges[4], WYRO);
 
             WYRO = cube.sides[0];
             BGRO = cube.sides[4] >> 32;
             edges[5] = WYRO | BGRO;
-            orient5 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient5 = getOrientation(edges[5], WYRO);
 
             WYRO = cube.sides[0] >> 16;
             BGRO = cube.sides[5] >> 32;
             edges[6] = WYRO | BGRO;
-            orient6 = getOrientation<WHITE_YELLOW>(WYRO);
+            orient6 = getOrientation(edges[6], WYRO);
 
         }
 
@@ -276,7 +279,7 @@ class Edge7Hash {
         uint16_t bit_string = 0;
         uint32_t edge_code = 0;
         for (int i = 0; i < 7; i++) { 
-            uint64_t index = edge_indices[i];
+            unsigned int index = edge_indices[i];
             bit_string |= uint16_t(0b100000000000) >> index;
             if (i == 0) {
                 edge_code += index * permutations[i];
@@ -285,7 +288,168 @@ class Edge7Hash {
             index -= bitCount[bit_string >> (12 - index)];
             edge_code += index * permutations[i];
         }
-        return (edge_code * 128) + orientation_code;
+        uint32_t hash = (edge_code * 128) + orientation_code;
+        return hash;
+    }
+};
+
+class Edge6Hash {
+  private:
+	unsigned int permutations[6]; //Look up table for permutations
+	std::vector<unsigned int> bitCount; //Look up table for the number of set bits. There are 2^7 possible bit combiniations
+
+    inline uint32_t getOrientation(uint64_t &edge_index, uint64_t &WYRO) { 
+        if (edge_index & WHITE_YELLOW) { return (WYRO & WHITE_YELLOW) ? 1 : 0; }
+        else { return (WYRO & RED_ORANGE) ? 1 : 0; }
+    }
+
+  public:
+	Edge6Hash() {
+        //Precomputes permutations (12-1-i)P(6-1-i)
+        for (int i = 0; i < 6; i++) {
+            permutations[i] = factorial(11-i) / 720;
+        }
+        
+        //Make the bit count lookup table
+        bitCount.reserve(1 << 12);
+        for (unsigned int i = 0; i < (1 << 12); i++) {
+            uint8_t count = 0;
+            unsigned int x = i; // So bits can be removed from x
+            if (x) do { count++; } while (x &= x-1);
+            bitCount[i] = count;
+        }
+    }
+
+    // Edge indices:
+    // *White is not portrayed upside down
+    //
+    //         . 2 .
+    //         3 Y 1
+    //         . 0 .
+    //
+    // . 3 .   . 0 .   . 1 .   . 2 .
+    // 6 O 7   7 B 4   4 R 5   5 G 6
+    // .11 .   . 8 .   . 9 .   . 10 .
+    //
+    //         .10 .
+    //         9 W 11
+    //         . 8 .
+
+	inline uint32_t computeHash(Cube &cube) {
+        // Get the edge indices
+        //
+        // Shifts needed:
+        // .  0  .
+        // 48 . 16
+        // . 32  .
+        //
+        // Cube sides indices:
+        // W B R Y G O
+        // 0 1 2 3 4 5
+
+        uint64_t WYRO; 
+        uint64_t BGRO;
+        uint64_t edges[6];
+
+        uint32_t orient0;
+        uint32_t orient1;
+        uint32_t orient2;
+        uint32_t orient3;
+        uint32_t orient4;
+        uint32_t orient5;
+
+        WYRO = cube.sides[3] >> 32;
+        BGRO = cube.sides[1];
+        edges[0] = WYRO | BGRO;
+        orient0 = getOrientation(edges[0], WYRO);
+
+        WYRO = cube.sides[3] >> 16;
+        BGRO = cube.sides[2];
+        edges[1] = WYRO | BGRO;
+        orient1 = getOrientation(edges[1], WYRO);
+
+        WYRO = cube.sides[3];
+        BGRO = cube.sides[4];
+        edges[2] = WYRO | BGRO;
+        orient2 = getOrientation(edges[2], WYRO);
+
+        WYRO = cube.sides[3] >> 48;
+        BGRO = cube.sides[5];
+        edges[3] = WYRO | BGRO;
+        orient3 = getOrientation(edges[3], WYRO);
+
+        WYRO = cube.sides[2] >> 48;
+        BGRO = cube.sides[1] >> 16;
+        edges[4] = WYRO | BGRO;
+        orient4 = getOrientation(edges[4], WYRO);
+
+        WYRO = cube.sides[2] >> 16;
+        BGRO = cube.sides[4] >> 48;
+        edges[5] = WYRO | BGRO;
+        orient5 = getOrientation(edges[5], WYRO);
+
+        //Convert the edge to an index
+        unsigned int edge_indices[6];
+        for (int i = 0; i < 6; i++) {
+            switch (edges[i] & 0xFF) {
+                case 0b001010:
+                    edge_indices[i] = 0;
+                    break;
+                case 0b001100:
+                    edge_indices[i] = 1;
+                    break;
+                case 0b011000:
+                    edge_indices[i] = 2;
+                    break;
+                case 0b101000:
+                    edge_indices[i] = 3;
+                    break;
+                case 0b000110:
+                    edge_indices[i] = 4;
+                    break;
+                case 0b010100:
+                    edge_indices[i] = 5;
+                    break;
+                case 0b110000:
+                    edge_indices[i] = 6;
+                    break;
+                case 0b100010:
+                    edge_indices[i] = 7;
+                    break;
+                case 0b000011:
+                    edge_indices[i] = 8;
+                    break;
+                case 0b000101:
+                    edge_indices[i] = 9;
+                    break;
+                case 0b010001:
+                    edge_indices[i] = 10;
+                    break;
+                case 0b100001:
+                    edge_indices[i] = 11;
+                    break;
+                default:
+                    std::cout << "Error\n";
+            }
+        }
+
+        uint32_t orientation_code = (orient5 * 32) + (orient4 * 16) + (orient3 * 8) + (orient2 * 4) + (orient1 * 2) + orient0;
+        
+        //Get Lehmer code of edge permutation
+        uint16_t bit_string = 0;
+        uint32_t edge_code = 0;
+        for (int i = 0; i < 6; i++) { 
+            unsigned int index = edge_indices[i];
+            bit_string |= uint16_t(0b100000000000) >> index;
+            /*if (i == 0) {
+                edge_code += index * permutations[i];
+                continue;
+            }*/
+            index -= bitCount[bit_string >> (12 - index)];
+            edge_code += index * permutations[i];
+        }
+
+        return (edge_code * 64) + orientation_code;
     }
 };
 
