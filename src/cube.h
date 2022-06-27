@@ -103,13 +103,29 @@ const uint64_t SOLID_FACE_YELLOW = 0x0808080808080808;
 const uint64_t SOLID_FACE_GREEN = 0x1010101010101010;
 const uint64_t SOLID_FACE_ORANGE = 0x2020202020202020;
 
-inline uint64_t concatenate(Color color1, Color color2, Color color3, Color color4,
+const uint8_t WHITE_YELLOW = WHITE | YELLOW;
+const uint8_t BLUE_GREEN = BLUE | GREEN;
+const uint8_t RED_ORANGE = RED | ORANGE;
+
+constexpr uint64_t concatenate(Color color1, Color color2, Color color3, Color color4,
                 Color color5, Color color6, Color color7, Color color8) {
     return (((color1 | C64(0)) << 56) | ((color2 | C64(0)) << 48) | ((color3 | C64(0)) << 40) | ((color4 | C64(0)) << 32) |
         (color5 << 24) | (color6 << 16) | (color7 << 8) | color8);
 }
 
 class Cube {
+  private:
+    inline uint16_t getCornerCubieOrientation(uint64_t &FB, uint64_t &UD) {
+		if (UD & WHITE_YELLOW) { return 0; }
+        else if (FB & WHITE_YELLOW) { return 1; }
+        else { return 2; }
+    }
+
+    inline uint8_t getEdgeCubieOrientation(uint64_t edge_index, uint64_t &WYRO) { 
+        if (edge_index & WHITE_YELLOW) { return (WYRO & WHITE_YELLOW) ? 1 : 0; }
+        else { return (WYRO & RED_ORANGE) ? 1 : 0; }
+    }
+
   public:
     uint64_t sides[6];
 
@@ -146,11 +162,18 @@ class Cube {
 
     void print();
 
+    //Raw coordinates
+    uint16_t getCornerOrient();
+    uint16_t getEdgeOrient();
+    uint16_t getUDSlice();
+    uint16_t getCornerPerm();
+    uint16_t getEdgePerm2(); //Phase 2 edge permutation coordniate
+    uint8_t  getUDSlice2(); //Phase 2 UDSlice coordinate
 };
 
 inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
     side &= ~mask; // Set the bits that will be inserted into to zero
-    side ^= inserted_side & mask; // Toggle the bits to insert
+    side |= inserted_side & mask; // Toggle the bits to insert
 }
 
 enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };

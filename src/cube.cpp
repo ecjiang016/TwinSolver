@@ -1,4 +1,6 @@
 #include "cube.h"
+#include <stdexcept>
+#include <vector>
 
 bool Cube::inG1() {
 	return !((sides[1] | sides[2] | sides[4] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // If all edge pieces that belong in the middle layer are in the middle layer
@@ -495,4 +497,477 @@ std::ostream &operator<<(std::ostream &out, const Move move) {
     }
 
     return out << str;
+
+}
+
+constexpr uint32_t factorial(int n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+const uint32_t factorials[12] = {factorial(0), factorial(1), factorial(2), factorial(3), factorial(4),  factorial(5),
+                                 factorial(6), factorial(7), factorial(8), factorial(9), factorial(10), factorial(11)};
+
+inline uint16_t combination(uint8_t n, uint8_t k) { return factorial(n) / (factorial(k)*factorial(n-k)); }
+
+const std::vector<uint8_t> bitCount = []() -> std::vector<uint8_t> {
+    std::vector<uint8_t> bit_count;
+    for (unsigned int i = 0; i < (1 << 7); i++) {
+        uint8_t count = 0;
+        unsigned int x = i; // So bits can be removed from x
+        if (x) do { count++; } while (x &= x-1);
+        bit_count.push_back(count);
+    }
+
+    return bit_count;
+
+}();
+
+// Conrner indices:
+// *White is not portrayed upside down
+//
+//         5 . 4
+//         . Y .
+//         0 . 1
+//
+// 5 . 0   0 . 1   1 . 4   4 . 5
+// . O .   . B .   . R .   . G .
+// 6 . 3   3 . 2   2 . 7   7 . 6
+//
+//         7 . 6
+//         . W .
+//         2 . 3
+
+uint16_t Cube::getCornerOrient() {
+    uint64_t UD;
+    uint64_t FB;
+
+    FB = this->sides[1] >> 56;
+    UD = this->sides[3] >> 40;
+    uint16_t orient0 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[1] >>  8;
+    UD = this->sides[2] >> 56;
+    uint16_t orient1 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[0] >> 40;
+    UD = this->sides[1] >> 24;
+    uint16_t orient2 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[0] >> 24;
+    UD = this->sides[1] >> 40;
+    uint16_t orient3 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[2] >>  8;
+    UD = this->sides[3] >>  8;
+    uint16_t orient4 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[3] >> 56;
+    UD = this->sides[4] >>  8;
+    uint16_t orient5 = getCornerCubieOrientation(FB, UD);
+
+    FB = this->sides[0] >>  8;
+    UD = this->sides[4] >> 24;
+    uint16_t orient6 = getCornerCubieOrientation(FB, UD);
+
+    // Last corner isn't needed as the last corner can be inferred from the rest of the corners
+
+    //Compute the corner code
+    //Equivalent of converting from base 3 to base 10
+    return (orient6 * 729) + (orient5 * 243) + (orient4 * 81) + (orient3 * 27) + (orient2 * 9) + (orient1 * 3) + orient0;
+    
+}
+
+uint16_t Cube::getCornerPerm() {
+    uint64_t UD;
+    uint64_t FB;
+    uint64_t RL;
+    uint64_t corners[7]; //Last corner doesn't matter since the first 7 force what the last one will be
+
+    FB = this->sides[1] >> 56;
+    UD = this->sides[3] >> 40;
+    RL = this->sides[5] >>  8;
+    corners[0] = FB | UD | RL;
+
+    FB = this->sides[1] >>  8;
+    RL = this->sides[2] >> 56;
+    UD = this->sides[3] >> 24;
+    corners[1] = FB | UD | RL;
+
+    UD = this->sides[0] >> 40;
+    FB = this->sides[1] >> 24;
+    RL = this->sides[2] >> 40;
+    corners[2] = FB | UD | RL;
+
+    UD = this->sides[0] >> 24;
+    FB = this->sides[1] >> 40;
+    RL = this->sides[5] >> 24;
+    corners[3] = FB | UD | RL;
+
+    RL = this->sides[2] >>  8;
+    UD = this->sides[3] >>  8;
+    FB = this->sides[4] >> 56;
+    corners[4] = FB | UD | RL;
+
+    UD = this->sides[3] >> 56;
+    FB = this->sides[4] >>  8;
+    RL = this->sides[5] >> 56;
+    corners[5] = FB | UD | RL;
+
+    UD = this->sides[0] >>  8;
+    FB = this->sides[4] >> 24;
+    RL = this->sides[5] >> 40;
+    corners[6] = FB | UD | RL;
+
+    // Last corner isn't needed as the last corner can be inferred from the rest of the corners
+
+    //Convert the corner to an index
+    unsigned int corner_indices[7];
+    for (int i = 0; i < 7; i++) {
+        switch (corners[i] & 0xFF) {
+            case 0b101010:
+                corner_indices[i] = 0;
+                break;
+            case 0b001110:
+                corner_indices[i] = 1;
+                break;
+            case 0b000111:
+                corner_indices[i] = 2;
+                break;
+            case 0b100011:
+                corner_indices[i] = 3;
+                break;
+            case 0b011100:
+                corner_indices[i] = 4;
+                break;
+            case 0b111000:
+                corner_indices[i] = 5;
+                break;
+            case 0b110001:
+                corner_indices[i] = 6;
+                break;
+            case 0b010101:
+                corner_indices[i] = 7;
+                break;
+            default:
+                std::cout << "Error\n";
+        }
+    }
+
+    //Compute the Lehmer code of the corner permutation
+    uint8_t bit_string = 0;
+    uint32_t corner_code = 0;
+    for (int i = 0; i < 7; i++) { //Only need 7 corners cause the 7 determines how the last corner looks
+        unsigned int index = corner_indices[i];
+        bit_string |= uint8_t(0b10000000) >> index;
+
+        if (i == 0) { //The first digit of the Lehmer code doesn't depend on the others so need for the bit count
+            corner_code += index * factorials[7-i]; //Translate into base 10
+            continue;
+        }
+        index -= bitCount[bit_string >> (8 - index)];
+        corner_code += index * factorials[7-i]; //Translate into base 10
+
+    }
+
+    return corner_code;
+
+}
+
+// Edge indices:
+// *White is not portrayed upside down
+//
+//         . 2 .
+//         3 Y 1
+//         . 0 .
+//
+// . 3 .   . 0 .   . 1 .   . 2 .
+// 6 O 7   7 B 4   4 R 5   5 G 6
+// .11 .   . 8 .   . 9 .   . 10 .
+//
+//         .10 .
+//         9 W 11
+//         . 8 .
+
+uint16_t Cube::getEdgeOrient() {
+    uint64_t WYRO; 
+    uint64_t BGRO;
+
+    uint8_t orient0;
+    uint8_t orient1;
+    uint8_t orient2;
+    uint8_t orient3;
+    uint8_t orient4;
+    uint8_t orient5;
+    uint8_t orient6;
+    uint8_t orient7;
+    uint8_t orient8;
+    uint8_t orient9;
+    uint8_t orient10;
+
+    WYRO = this->sides[3] >> 32;
+    BGRO = this->sides[1];
+    orient0 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[3] >> 16;
+    BGRO = this->sides[2];
+    orient1 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[3];
+    BGRO = this->sides[4];
+    orient2 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[3] >> 48;
+    BGRO = this->sides[5];
+    orient3 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[2] >> 48;
+    BGRO = this->sides[1] >> 16;
+    orient4 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[2] >> 16;
+    BGRO = this->sides[4] >> 48;
+    orient5 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[5] >> 48;
+    BGRO = this->sides[4] >> 16;
+    orient6 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[5] >> 16;
+    BGRO = this->sides[1] >> 48;
+    orient7 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[0] >> 32;
+    BGRO = this->sides[1] >> 32;
+    orient8 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[0] >> 48;
+    BGRO = this->sides[2] >> 32;
+    orient9 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    WYRO = this->sides[0];
+    BGRO = this->sides[4] >> 32;
+    orient10 = getEdgeCubieOrientation(WYRO | BGRO, WYRO);
+
+    //Last edge isn't needed as the first 11 edges determine what the last one will look like
+
+    //Convert to code 
+    return (orient10 << 10) | (orient9 << 9) | (orient8 << 8) | (orient7 << 7) | (orient6 << 6) |
+           (orient5 << 5) | (orient4 << 4) | (orient3 << 3) | (orient2 << 2) | (orient1 << 1) | orient0;
+
+}
+
+//The phase 2 edge perm only keeps track of edge pieces in the U and D layers 
+uint16_t Cube::getEdgePerm2() {
+    uint64_t WYRO; 
+    uint64_t BGRO;
+    uint64_t edges[7];
+
+    //Top layer
+    WYRO = this->sides[3] >> 32;
+    BGRO = this->sides[1];
+    edges[0] = WYRO | BGRO;
+
+    WYRO = this->sides[3] >> 16;
+    BGRO = this->sides[2];
+    edges[1] = WYRO | BGRO;
+
+    WYRO = this->sides[3];
+    BGRO = this->sides[4];
+    edges[2] = WYRO | BGRO;
+
+    WYRO = this->sides[3] >> 48;
+    BGRO = this->sides[5];
+    edges[3] = WYRO | BGRO;
+
+    //Bottom layer
+    WYRO = this->sides[0] >> 32;
+    BGRO = this->sides[1] >> 32;
+    edges[4] = WYRO | BGRO;
+
+    WYRO = this->sides[0] >> 48;
+    BGRO = this->sides[2] >> 32;
+    edges[5] = WYRO | BGRO;
+
+    WYRO = this->sides[0];
+    BGRO = this->sides[4] >> 32;
+    edges[6] = WYRO | BGRO;
+
+    //Last edge isn't needed as the first 11 edges determine what the last one will look like
+
+    //Convert the edge to an index
+    unsigned int edge_indices[7];
+    for (int i = 0; i < 7; i++) {
+        switch (edges[i] & 0xFF) {
+            case 0b001010:
+                edge_indices[i] = 0;
+                break;
+            case 0b001100:
+                edge_indices[i] = 1;
+                break;
+            case 0b011000:
+                edge_indices[i] = 2;
+                break;
+            case 0b101000:
+                edge_indices[i] = 3;
+                break;
+            case 0b000011:
+                edge_indices[i] = 4;
+                break;
+            case 0b000101:
+                edge_indices[i] = 5;
+                break;
+            case 0b010001:
+                edge_indices[i] = 6;
+                break;
+            case 0b100001:
+                edge_indices[i] = 7;
+                break;
+            default:
+                std::cout << "Error\n";
+        }
+    }
+    
+    //Get Lehmer code of edge permutation
+    uint8_t bit_string = 0;
+    uint32_t edge_code = 0;
+    for (int i = 0; i < 7; i++) { 
+        unsigned int index = edge_indices[i];
+        bit_string |= uint8_t(0b10000000) >> index;
+        if (i == 0) {
+            edge_code += index * factorials[7-i];
+            continue;
+        }
+        index -= bitCount[bit_string >> (8 - index)];
+        edge_code += index * factorials[7-i];
+    }
+
+    return edge_code;
+
+}
+
+//Tracks the location of the E layer (between U and D layers) edge cubies
+uint16_t Cube::getUDSlice() {
+    uint64_t WYRO; 
+    uint64_t BGRO;
+    uint64_t edges[12];
+
+    //Top layer
+    WYRO = this->sides[3] >> 32;
+    BGRO = this->sides[1];
+    edges[0] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[3] >> 16;
+    BGRO = this->sides[2];
+    edges[1] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[3];
+    BGRO = this->sides[4];
+    edges[2] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[3] >> 48;
+    BGRO = this->sides[5];
+    edges[3] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    //Middle layer
+    WYRO = this->sides[2] >> 48;
+    BGRO = this->sides[1] >> 16;
+    edges[4] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[2] >> 16;
+    BGRO = this->sides[4] >> 48;
+    edges[5] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[5] >> 48;
+    BGRO = this->sides[4] >> 16;
+    edges[6] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[5] >> 16;
+    BGRO = this->sides[1] >> 48;
+    edges[7] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    //Bottom layer
+    WYRO = this->sides[0] >> 32;
+    BGRO = this->sides[1] >> 32;
+    edges[8] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[0] >> 48;
+    BGRO = this->sides[2] >> 32;
+    edges[9] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[0];
+    BGRO = this->sides[4] >> 32;
+    edges[10] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    WYRO = this->sides[0] >> 16;
+    BGRO = this->sides[5] >> 32;
+    edges[11] = (WYRO | BGRO) & WHITE_YELLOW;
+
+    //Straight up copied off of Kociemba's page http://kociemba.org/math/twophase.htm
+    uint16_t edge_code = 0; //Equivalent to s in Kociemba's code
+    uint8_t n = 11;
+    int8_t k = 3;
+
+    while (k >= 0) {
+        if (!edges[n]) { k--; } else { edge_code += combination(n, k); }
+        n--;
+    }
+
+    return edge_code;
+
+}
+
+//The phase 2 UDSlice coordinate keeps track of the permutation of the E layer (between U and D layers)
+uint8_t Cube::getUDSlice2() {
+    uint64_t RO; 
+    uint64_t BG;
+    uint64_t edges[3];
+
+    RO = this->sides[2] >> 48;
+    BG = this->sides[1] >> 16;
+    edges[0] = RO | BG;
+
+    RO = this->sides[2] >> 16;
+    BG = this->sides[4] >> 48;
+    edges[1] = RO | BG;
+
+    RO = this->sides[5] >> 48;
+    BG = this->sides[4] >> 16;
+    edges[2] = RO | BG;
+
+    //Last edge isn't needed as the first 3 edges determine what the last one will look like
+
+    //Convert the edge to an index
+    unsigned int edge_indices[3];
+    for (int i = 0; i < 3; i++) {
+        switch (edges[i] & 0xFF) {
+            case 0b000110:
+                edge_indices[i] = 0;
+                break;
+            case 0b010100:
+                edge_indices[i] = 1;
+                break;
+            case 0b110000:
+                edge_indices[i] = 2;
+                break;
+            case 0b100010:
+                edge_indices[i] = 3;
+                break;
+            default:
+                std::cout << "Error\n";
+        }
+    }
+    
+    //Get Lehmer code of edge permutation
+    uint8_t bit_string = 0;
+    uint32_t edge_code = 0;
+    for (int i = 0; i < 3; i++) { 
+        unsigned int index = edge_indices[i];
+        bit_string |= uint8_t(0b1000) >> index;
+        if (i == 0) {
+            edge_code += index * factorials[3-i];
+            continue;
+        }
+        index -= bitCount[bit_string >> (4 - index)];
+        edge_code += index * factorials[3-i];
+    }
+
+    return edge_code;
+
 }
