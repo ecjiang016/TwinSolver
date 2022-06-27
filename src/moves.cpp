@@ -2,6 +2,8 @@
 #include <unordered_set>
 #include <deque>
 
+//This file is for generating move tables for the coordniate based cube and not for the regular Rubik's cube moves
+
 namespace MoveTable {
     enum CoordType {
         CTCornerOrient,
