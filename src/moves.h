@@ -1,6 +1,5 @@
 #pragma once
 #include "cube.h"
-#include "coord.h"
 #include <array>
 
 //This file is for generating move tables for the coordniate based cube and not for the regular Rubik's cube moves
