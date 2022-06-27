@@ -78,6 +78,7 @@ inline Move reverse_move(Move move) {
 }
 
 const Move all_moves[18] = {D, F, R, U, B, L, Dp, Fp, Rp, Up, Bp, Lp, D2, F2, R2, U2, B2, L2};
+const Move movesAfterG1[10] = {U, Up, U2, D, Dp, D2, F2, R2, B2, L2};
 
 // Masks
 //
