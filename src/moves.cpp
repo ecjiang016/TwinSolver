@@ -1,6 +1,7 @@
 #include "moves.h"
 #include <unordered_set>
 #include <deque>
+#include <assert.h>
 
 //This file is for generating move tables for the coordniate based cube and not for the regular Rubik's cube moves
 
@@ -14,12 +15,12 @@ namespace MoveTable {
         CTUDSlice2
     };
 
-    uint16_t CornerOrient[18][2187];
-    uint16_t EdgeOrient[18][2048];
-    uint16_t UDSlice[18][495];
-    uint16_t CornerPerm[10][40320]; //These 3 are only used in G1 so only 10 moves need to be accounted for
-    uint16_t EdgePerm2[10][40320];
-    uint8_t  UDSlice2[10][24];
+    uint16_t CornerOrient[23][2187];
+    uint16_t EdgeOrient[23][2048];
+    uint16_t UDSlice[23][495];
+    uint16_t CornerPerm[23][40320];
+    uint16_t EdgePerm2[23][40320];
+    uint8_t  UDSlice2[23][24];
 
     template<CoordType coord_type>
     void generateTable() {
@@ -40,6 +41,19 @@ namespace MoveTable {
         else if (coord_type == CTUDSlice2)     { hash = init_cube.getUDSlice2();     }
         hashes.insert(hash);
         queue.push_back(uint64_t(0));
+
+        //Get all moves off of node and add their coords to the right table
+        for (int i = 0; i < (phase2 ? 10 : 18); i++) {
+            Cube new_init_cube = init_cube;
+            Move new_init_move = phase2 ? movesAfterG1[i] : all_moves[i];
+            new_init_cube.rotate(new_init_move);
+            if      (coord_type == CTCornerOrient) { CornerOrient[new_init_move][hash] = new_init_cube.getCornerOrient(); }
+            else if (coord_type == CTEdgeOrient)   { EdgeOrient[new_init_move][hash]   = new_init_cube.getEdgeOrient();   }
+            else if (coord_type == CTUDSlice)      { UDSlice[new_init_move][hash]      = new_init_cube.getUDSlice();      }
+            else if (coord_type == CTCornerPerm)   { CornerPerm[new_init_move][hash]   = new_init_cube.getCornerPerm();   }
+            else if (coord_type == CTEdgePerm2)    { EdgePerm2[new_init_move][hash]    = new_init_cube.getEdgePerm2();    }
+            else if (coord_type == CTUDSlice2)     { UDSlice2[new_init_move][hash]     = new_init_cube.getUDSlice2();     }
+        }
 
         while (queue.size() != 0) {
             //Take node out of queue
@@ -74,14 +88,15 @@ namespace MoveTable {
 
                 //Get all moves off of node and add their coords to the right table
                 for (int i = 0; i < (phase2 ? 10 : 18); i++) {
-                    Cube another_new_cube = cube;
-                    another_new_cube.rotate(phase2 ? movesAfterG1[i] : all_moves[i]);
-                    if      (coord_type == CTCornerOrient) { CornerOrient[i][hash] = another_new_cube.getCornerOrient(); }
-                    else if (coord_type == CTEdgeOrient)   { EdgeOrient[i][hash] = another_new_cube.getEdgeOrient();     }
-                    else if (coord_type == CTUDSlice)      { UDSlice[i][hash] = another_new_cube.getUDSlice();           }
-                    else if (coord_type == CTCornerPerm)   { CornerPerm[i][hash] = another_new_cube.getCornerPerm();     }
-                    else if (coord_type == CTEdgePerm2)    { EdgePerm2[i][hash] = another_new_cube.getEdgePerm2();       }
-                    else if (coord_type == CTUDSlice2)     { UDSlice2[i][hash] = another_new_cube.getUDSlice2();         }
+                    Cube another_new_cube = new_cube;
+                    Move new_move = phase2 ? movesAfterG1[i] : all_moves[i];
+                    another_new_cube.rotate(new_move);
+                    if      (coord_type == CTCornerOrient) { CornerOrient[new_move][hash] = another_new_cube.getCornerOrient(); }
+                    else if (coord_type == CTEdgeOrient)   { EdgeOrient[new_move][hash]   = another_new_cube.getEdgeOrient();   }
+                    else if (coord_type == CTUDSlice)      { UDSlice[new_move][hash]      = another_new_cube.getUDSlice();      }
+                    else if (coord_type == CTCornerPerm)   { CornerPerm[new_move][hash]   = another_new_cube.getCornerPerm();   }
+                    else if (coord_type == CTEdgePerm2)    { EdgePerm2[new_move][hash]    = another_new_cube.getEdgePerm2();    }
+                    else if (coord_type == CTUDSlice2)     { UDSlice2[new_move][hash]     = another_new_cube.getUDSlice2();     }
                 }
 
                 uint64_t new_node = node;
