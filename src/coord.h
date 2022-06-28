@@ -24,7 +24,15 @@ namespace Coord {
             EdgePerm2 = 0;
             UDSlice2 = 0;
         }
-        void rotate();
+
+        void rotate(Move move);
+
+        inline uint16_t getCornerOrient() { return CornerOrient; }
+        inline uint16_t getEdgeOrient()   { return EdgeOrient;   }
+        inline uint16_t getUDSlice()      { return UDSlice;      }
+        inline uint16_t getCornerPerm()   { return CornerPerm;   }
+        inline uint16_t getEdgePerm2()    { return EdgePerm2;    }
+        inline uint8_t  getUDSlice2()     { return UDSlice2;     }
     };
 
 }
