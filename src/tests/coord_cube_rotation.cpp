@@ -1,13 +1,13 @@
 #include "cube.h"
 #include "moves.h"
-#include "coord.h"
+#include "coords.h"
 #include <random>
 #include <assert.h>
 
 int main() {
     MoveTable::initalizeTables();
     Cube cube;
-    Coord::Cube coord_cube;
+    Coords::Cube coord_cube;
 
     //Phase 1 coords
     for (int i = 0; i < 100000; i++) {
@@ -27,7 +27,7 @@ int main() {
 
     //Reset cubes
     cube = Cube();
-    coord_cube = Coord::Cube();
+    coord_cube = Coords::Cube();
 
     //Phase 2 coords
     for (int i = 0; i < 100000; i++) {

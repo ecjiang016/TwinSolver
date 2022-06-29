@@ -2,7 +2,7 @@
 #include "cube.h"
 #include "moves.h"
 
-namespace Coord {
+namespace Coords {
     
     class Cube {
       private:

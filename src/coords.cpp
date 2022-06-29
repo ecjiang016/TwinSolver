@@ -1,6 +1,6 @@
-#include "coord.h"
+#include "coords.h"
 
-void Coord::Cube::rotate(Move move) {
+void Coords::Cube::rotate(Move move) {
     CornerOrient = MoveTable::CornerOrient[move][CornerOrient];
     EdgeOrient = MoveTable::EdgeOrient[move][EdgeOrient];
     UDSlice = MoveTable::UDSlice[move][UDSlice];
