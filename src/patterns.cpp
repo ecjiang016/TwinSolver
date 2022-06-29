@@ -24,6 +24,7 @@ void buildDatabase(std::string save_file_name) {
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 1;
+    unsigned int unique_nodes = 1;
     
     //Process the first node
     Cube init_cube = Cube();
@@ -31,8 +32,6 @@ void buildDatabase(std::string save_file_name) {
     hash_cache.insertHash(hash);
     hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
     queue.push_back(uint64_t(0));
-
-    unsigned int counter = 0;
 
     while (queue.size() != 0) {
         //Take node out of queue
@@ -74,15 +73,10 @@ void buildDatabase(std::string save_file_name) {
         if (queue.size() == next_layer_nodes) {
             if (queue.size() == 0) { break; }
             
-            //Gotta find a new way of tracking unique nodes
-            //std::cout << "Finished depth " << int(depth) << ", " << hashes.size() << " unique nodes found" << std::endl;
+            unique_nodes += next_layer_nodes;
+            std::cout << "Finished depth " << int(depth) << ", " << unique_nodes << " unique nodes found" << std::endl;
             depth++;
             next_layer_nodes = 0;
-        }
-
-        if (queue.size() > counter) {
-            std::cout << queue.size() << std::endl;
-            counter += 10000000;
         }
 
     }
