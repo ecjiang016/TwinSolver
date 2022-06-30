@@ -14,69 +14,43 @@ struct HashCache {
     inline bool getBit(hash_type hash) { return hashes[hash / 4].getBit(hash % 4); }
 };
 
-template<Coords::CoordType coord_type, size_t DatabaseSize, typename hash_type>
+template<class CUBE, size_t DatabaseSize, typename hash_type>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search with coord cube
     HashCache<DatabaseSize, hash_type> hash_cache;
-    std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
+    std::deque<CUBE> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 1;
     unsigned int unique_nodes = 1;
     hash_type hash;
     
     //Process the first node
-    Coords::Cube init_cube = Coords::Cube();
-    if      (coord_type == Coords::CornerOrient) { hash = init_cube.getCornerOrient(); }
-    else if (coord_type == Coords::EdgeOrient)   { hash = init_cube.getEdgeOrient();   }
-    else if (coord_type == Coords::UDSlice)      { hash = init_cube.getUDSlice();      }
-    else if (coord_type == Coords::CornerPerm)   { hash = init_cube.getCornerPerm();   }
-    else if (coord_type == Coords::EdgePerm2)    { hash = init_cube.getEdgePerm2();    }
-    else if (coord_type == Coords::UDSlice2)     { hash = init_cube.getUDSlice2();     }
-    else if (coord_type == Coords::Phase1Coord)  { hash = init_cube.getPhase1Coord();  }
+    CUBE init_cube = CUBE();
+    hash = init_cube.getCoord();
     hash_cache.insertHash(hash);
     hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
-    queue.push_back(uint64_t(0));
+    queue.push_back(init_cube);
 
     while (queue.size() != 0) {
         //Take node out of queue
-        uint64_t node = queue.front();
+        CUBE cube = queue.front();
         queue.pop_front();
-
-        //Create a cube and move it to the node
-        Coords::Cube cube = Coords::Cube();
-        unsigned int moves_in_node = 0;
-        uint64_t temp_node = node;
-        while (temp_node) {
-            Move move = Move(temp_node & 0x1F);
-            temp_node = temp_node >> 5;
-            cube.rotate(move);
-            moves_in_node++;
-        }
 
         //Add all the nodes from that node to the queue
         for (Move move : all_moves) {
-            Coords::Cube new_cube = cube;
+            CUBE new_cube = cube;
             new_cube.rotate(move);
-            if      (coord_type == Coords::CornerOrient) { hash = new_cube.getCornerOrient(); }
-            else if (coord_type == Coords::EdgeOrient)   { hash = new_cube.getEdgeOrient();   }
-            else if (coord_type == Coords::UDSlice)      { hash = new_cube.getUDSlice();      }
-            else if (coord_type == Coords::CornerPerm)   { hash = new_cube.getCornerPerm();   }
-            else if (coord_type == Coords::EdgePerm2)    { hash = new_cube.getEdgePerm2();    }
-            else if (coord_type == Coords::UDSlice2)     { hash = new_cube.getUDSlice2();     }
-            else if (coord_type == Coords::Phase1Coord)  { hash = new_cube.getPhase1Coord();  }
+            hash = new_cube.getCoord();
             if (hash_cache.getBit(hash)) { continue; } //Prune if visited before
 
             //Add hash to cache and insert it in the pattern database array
             hash_cache.insertHash(hash);
             hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
 
-            uint64_t new_node = node;
-            uint64_t inserted_move = uint64_t(move);
-            new_node |= inserted_move << (5 * moves_in_node);
-            queue.push_back(new_node);
+            queue.push_back(new_cube);
             next_layer_nodes++;
             
         }
@@ -104,5 +78,6 @@ void buildDatabase(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initalizeTables();
-    buildDatabase<Coords::Phase1Coord, 2217093120, uint32_t>("test.patterns");
+    buildDatabase<Coords::Phase1::Cube, 2217093120, uint32_t>("Phase1.patterns");
+    buildDatabase<Coords::Phase2::Cube, 1625702400, uint32_t>("Phase2.patterns");
 }
