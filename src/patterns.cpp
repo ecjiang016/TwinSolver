@@ -7,8 +7,9 @@
 template<size_t size, typename hash_type>
 struct HashCache {
   private:
-    Bits hashes[(size + 3) / 4];
+    std::vector<Bits> hashes;
   public:
+    HashCache() : hashes((size + 3) / 4) {}
     inline void insertHash(hash_type hash) { hashes[hash / 4].toggleBit(hash % 4); }
     inline bool getBit(hash_type hash) { return hashes[hash / 4].getBit(hash % 4); }
 };
@@ -19,7 +20,7 @@ void buildDatabase(std::string save_file_name) {
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search with coord cube
-    HashCache<DatabaseSize, uint16_t> hash_cache;
+    HashCache<DatabaseSize, hash_type> hash_cache;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 1;
@@ -34,6 +35,7 @@ void buildDatabase(std::string save_file_name) {
     else if (coord_type == Coords::CornerPerm)   { hash = init_cube.getCornerPerm();   }
     else if (coord_type == Coords::EdgePerm2)    { hash = init_cube.getEdgePerm2();    }
     else if (coord_type == Coords::UDSlice2)     { hash = init_cube.getUDSlice2();     }
+    else if (coord_type == Coords::Phase1Coord)  { hash = init_cube.getPhase1Coord();  }
     hash_cache.insertHash(hash);
     hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
     queue.push_back(uint64_t(0));
@@ -64,6 +66,7 @@ void buildDatabase(std::string save_file_name) {
             else if (coord_type == Coords::CornerPerm)   { hash = new_cube.getCornerPerm();   }
             else if (coord_type == Coords::EdgePerm2)    { hash = new_cube.getEdgePerm2();    }
             else if (coord_type == Coords::UDSlice2)     { hash = new_cube.getUDSlice2();     }
+            else if (coord_type == Coords::Phase1Coord)  { hash = new_cube.getPhase1Coord();  }
             if (hash_cache.getBit(hash)) { continue; } //Prune if visited before
 
             //Add hash to cache and insert it in the pattern database array
@@ -101,5 +104,5 @@ void buildDatabase(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initalizeTables();
-    buildDatabase<Coords::CornerPerm, 40319, uint16_t>("CornerPermTest.patterns");
+    buildDatabase<Coords::Phase1Coord, 2217093120, uint32_t>("test.patterns");
 }

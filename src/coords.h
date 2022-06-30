@@ -9,7 +9,8 @@ namespace Coords {
         UDSlice,
         CornerPerm,
         EdgePerm2,
-        UDSlice2
+        UDSlice2,
+		Phase1Coord
     };
 
     class Cube {
@@ -41,6 +42,7 @@ namespace Coords {
         inline uint16_t getCornerPerm()   { return _CornerPerm;   }
         inline uint16_t getEdgePerm2()    { return _EdgePerm2;    }
         inline uint8_t  getUDSlice2()     { return _UDSlice2;     }
+		inline uint32_t getPhase1Coord()  { return (_CornerOrient * 495 * 2048) + (_UDSlice * 2048) + _EdgeOrient; }
     };
 
 }
