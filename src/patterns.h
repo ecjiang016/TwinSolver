@@ -30,9 +30,6 @@ const uint64_t CORNER_MASK_5 = CORNER_MASK_1;
 const uint64_t CORNER_MASK_6 = CORNER_MASK_2;
 const uint64_t CORNER_MASK_7 = CORNER_MASK_3;
 
-const uint64_t WHITE_YELLOW = WHITE | YELLOW;
-const uint64_t RED_ORANGE = RED | ORANGE;
-
 struct Nibbles {
   private:
     uint8_t byte;

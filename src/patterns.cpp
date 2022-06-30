@@ -10,7 +10,7 @@ struct HashCache {
     Bits hashes[(size + 3) / 4];
   public:
     inline void insertHash(hash_type hash) { hashes[hash / 4].toggleBit(hash % 4); }
-    inline bool getBit(hash_type hash) { return hashes[hash_type].getBit(hash % 4); }
+    inline bool getBit(hash_type hash) { return hashes[hash / 4].getBit(hash % 4); }
 };
 
 template<Coords::CoordType coord_type, size_t DatabaseSize, typename hash_type>
@@ -28,7 +28,6 @@ void buildDatabase(std::string save_file_name) {
     
     //Process the first node
     Coords::Cube init_cube = Coords::Cube();
-    int32_t hash = hash_function.computeHash(init_cube);
     if      (coord_type == Coords::CornerOrient) { hash = init_cube.getCornerOrient(); }
     else if (coord_type == Coords::EdgeOrient)   { hash = init_cube.getEdgeOrient();   }
     else if (coord_type == Coords::UDSlice)      { hash = init_cube.getUDSlice();      }
@@ -57,22 +56,20 @@ void buildDatabase(std::string save_file_name) {
 
         //Add all the nodes from that node to the queue
         for (Move move : all_moves) {
-            //cube.rotate(move);
             Coords::Cube new_cube = cube;
             new_cube.rotate(move);
-            if      (coord_type == Coords::CornerOrient) { hash = init_cube.getCornerOrient(); }
-            else if (coord_type == Coords::EdgeOrient)   { hash = init_cube.getEdgeOrient();   }
-            else if (coord_type == Coords::UDSlice)      { hash = init_cube.getUDSlice();      }
-            else if (coord_type == Coords::CornerPerm)   { hash = init_cube.getCornerPerm();   }
-            else if (coord_type == Coords::EdgePerm2)    { hash = init_cube.getEdgePerm2();    }
-            else if (coord_type == Coords::UDSlice2)     { hash = init_cube.getUDSlice2();     }
+            if      (coord_type == Coords::CornerOrient) { hash = new_cube.getCornerOrient(); }
+            else if (coord_type == Coords::EdgeOrient)   { hash = new_cube.getEdgeOrient();   }
+            else if (coord_type == Coords::UDSlice)      { hash = new_cube.getUDSlice();      }
+            else if (coord_type == Coords::CornerPerm)   { hash = new_cube.getCornerPerm();   }
+            else if (coord_type == Coords::EdgePerm2)    { hash = new_cube.getEdgePerm2();    }
+            else if (coord_type == Coords::UDSlice2)     { hash = new_cube.getUDSlice2();     }
             if (hash_cache.getBit(hash)) { continue; } //Prune if visited before
-                
+
             //Add hash to cache and insert it in the pattern database array
             hash_cache.insertHash(hash);
             hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
 
-            //cube.rotate(reverse_move(move));
             uint64_t new_node = node;
             uint64_t inserted_move = uint64_t(move);
             new_node |= inserted_move << (5 * moves_in_node);
@@ -99,9 +96,10 @@ void buildDatabase(std::string save_file_name) {
     std::cout << "Writing depths..." << std::endl;
     file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
     file.close();
-    std::cout << save_file_name << " has been built\n\n";
+    std::cout << save_file_name << " has been built\n" << std::endl;
 }
 
 void buildAllDatabases() {
-    
+    MoveTable::initalizeTables();
+    buildDatabase<Coords::CornerPerm, 40319, uint16_t>("CornerPermTest.patterns");
 }
