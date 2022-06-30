@@ -79,7 +79,7 @@ namespace Coords {
             }
 
             void rotate(Move move);
-            inline uint32_t getCoord() { return (_EdgePerm2 * 2048) + _CornerPerm; }
+            inline uint32_t getCoord() { return (_EdgePerm2 * 40320) + _CornerPerm; }
         };
     }
 
