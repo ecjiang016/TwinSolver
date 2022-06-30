@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <deque>
 #include <assert.h>
+#include <chrono>
 
 //Keeps track of previously visited hashes for BFS
 template<size_t size, typename hash_type>
@@ -17,6 +18,7 @@ struct HashCache {
 template<class CUBE, size_t DatabaseSize, typename hash_type>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
+    auto start_time = std::chrono::high_resolution_clock::now();
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search with coord cube
@@ -66,6 +68,10 @@ void buildDatabase(std::string save_file_name) {
 
     }
 
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time).count();
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
+
     std::ofstream file;
     file.open("./databases/" + save_file_name, std::ios_base::binary);
     assert(file.is_open());
@@ -73,7 +79,8 @@ void buildDatabase(std::string save_file_name) {
     std::cout << "Writing depths..." << std::endl;
     file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
     file.close();
-    std::cout << save_file_name << " has been built\n" << std::endl;
+    std::cout << save_file_name << " has been built ";
+    std::cout << "(" << minutes << " minutes, " << seconds << " seconds)\n" << std::endl;
 }
 
 void buildAllDatabases() {
