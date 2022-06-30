@@ -13,22 +13,28 @@ struct HashCache {
     inline bool getBit(hash_type hash) { return hashes[hash_type].getBit(hash % 4); }
 };
 
-template<class Hash, size_t DatabaseSize>
+template<Coords::CoordType coord_type, size_t DatabaseSize, typename hash_type>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     std::vector<Nibbles> pattern_depths((DatabaseSize + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
-    //Using breadth-first search
-    Hash hash_function = Hash();
+    //Using breadth-first search with coord cube
     HashCache<DatabaseSize, uint16_t> hash_cache;
     std::deque<uint64_t> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 1;
     unsigned int unique_nodes = 1;
+    hash_type hash;
     
     //Process the first node
-    Cube init_cube = Cube();
+    Coords::Cube init_cube = Coords::Cube();
     int32_t hash = hash_function.computeHash(init_cube);
+    if      (coord_type == Coords::CornerOrient) { hash = init_cube.getCornerOrient(); }
+    else if (coord_type == Coords::EdgeOrient)   { hash = init_cube.getEdgeOrient();   }
+    else if (coord_type == Coords::UDSlice)      { hash = init_cube.getUDSlice();      }
+    else if (coord_type == Coords::CornerPerm)   { hash = init_cube.getCornerPerm();   }
+    else if (coord_type == Coords::EdgePerm2)    { hash = init_cube.getEdgePerm2();    }
+    else if (coord_type == Coords::UDSlice2)     { hash = init_cube.getUDSlice2();     }
     hash_cache.insertHash(hash);
     hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
     queue.push_back(uint64_t(0));
@@ -39,7 +45,7 @@ void buildDatabase(std::string save_file_name) {
         queue.pop_front();
 
         //Create a cube and move it to the node
-        Cube cube = Cube();
+        Coords::Cube cube = Coords::Cube();
         unsigned int moves_in_node = 0;
         uint64_t temp_node = node;
         while (temp_node) {
@@ -52,9 +58,14 @@ void buildDatabase(std::string save_file_name) {
         //Add all the nodes from that node to the queue
         for (Move move : all_moves) {
             //cube.rotate(move);
-            Cube new_cube = cube;
+            Coords::Cube new_cube = cube;
             new_cube.rotate(move);
-            uint32_t hash = hash_function.computeHash(new_cube);
+            if      (coord_type == Coords::CornerOrient) { hash = init_cube.getCornerOrient(); }
+            else if (coord_type == Coords::EdgeOrient)   { hash = init_cube.getEdgeOrient();   }
+            else if (coord_type == Coords::UDSlice)      { hash = init_cube.getUDSlice();      }
+            else if (coord_type == Coords::CornerPerm)   { hash = init_cube.getCornerPerm();   }
+            else if (coord_type == Coords::EdgePerm2)    { hash = init_cube.getEdgePerm2();    }
+            else if (coord_type == Coords::UDSlice2)     { hash = init_cube.getUDSlice2();     }
             if (hash_cache.getBit(hash)) { continue; } //Prune if visited before
                 
             //Add hash to cache and insert it in the pattern database array
