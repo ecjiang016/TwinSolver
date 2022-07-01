@@ -1,1 +1,2 @@
 src/databases/ filter=lfs diff=lfs merge=lfs -text
+*.patterns filter=lfs diff=lfs merge=lfs -text
