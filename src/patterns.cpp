@@ -85,6 +85,6 @@ void buildDatabase(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initalizeTables();
-    buildDatabase<Coords::Phase1::Cube, 2217093120, uint32_t>("Phase1.patterns");
-    buildDatabase<Coords::Phase2::Cube, 1625702400, uint32_t>("Phase2.patterns");
+    buildDatabase<Coords::Phase1::Cube, PHASE1_PATTERNS_SIZE, uint32_t>("Phase1.patterns");
+    buildDatabase<Coords::Phase2::Cube, PHASE2_PATTERNS_SIZE, uint32_t>("Phase2.patterns");
 }

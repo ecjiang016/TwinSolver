@@ -9,6 +9,8 @@ const size_t CORNER_PATTERNS_SIZE    =  88179840; // 8! * 3^7
 const size_t EDGE_PERM_PATTERNS_SIZE = 479001600; // 12!
 const size_t EDGE_7_PATTERNS_SIZE    = 510935040; // 12P7 * 2^7
 const size_t EDGE_6_PATTERNS_SIZE    = 42577920;
+const size_t PHASE1_PATTERNS_SIZE    = 2217093120;
+const size_t PHASE2_PATTERNS_SIZE    = 1625702400;
 
 // Masks
 //
