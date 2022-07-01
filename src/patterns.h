@@ -55,10 +55,9 @@ inline int factorial(int n) {
 
 void buildAllDatabases();
 
-template<class Hash, size_t DatabaseSize>
+template<class CUBE, size_t DatabaseSize>
 class Patterns {
   private:
-    Hash hash;
     std::vector<Nibbles> depths;
   public:
     Patterns(std::string file_name) {
@@ -72,8 +71,8 @@ class Patterns {
         file.read(reinterpret_cast<char *>(depths.data()), file_size);
     }
 
-    inline uint8_t getDepth(Cube &cube) {
-        uint32_t cube_hash = hash.computeHash(cube);
+    inline uint8_t getDepth(CUBE &cube) {
+        uint32_t cube_hash = cube.getCoord();
         Nibbles nibbles = depths[cube_hash / 2];
         return (cube_hash % 2 == 0) ? nibbles.getLow() : nibbles.getHigh();
     }
