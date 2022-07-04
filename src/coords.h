@@ -45,6 +45,8 @@ namespace Coords {
         inline uint32_t getPhase2Coord()  { return (_EdgePerm2 * 2048) + _CornerPerm; }
     };
 
+    //Specialized cubes that use less memory and have to update less things, making them faster
+
     namespace Phase1 {
         class Cube {
           private:
@@ -59,8 +61,15 @@ namespace Coords {
                 _UDSlice = 425;
             }
 
+            Cube(::Cube &cube) {
+                _CornerOrient = cube.getCornerOrient();
+                _EdgeOrient = cube.getEdgeOrient();
+                _UDSlice = cube.getUDSlice();
+            }
+
             void rotate(Move move);
             inline uint32_t getCoord() { return (_CornerOrient * 495 * 2048) + (_UDSlice * 2048) + _EdgeOrient; }
+            inline bool inG1() { return _CornerOrient == 1014 && _EdgeOrient == 2047 && UDSlice == 425; }
         };
     }
     
@@ -78,8 +87,15 @@ namespace Coords {
                 _UDSlice2 = 0;
             }
 
+            Cube(::Cube &cube) {
+                _CornerPerm = cube.getCornerPerm();
+                _EdgePerm2 = cube.getEdgePerm2();
+                _UDSlice2 = cube.getEdgePerm2();
+            }
+
             void rotate(Move move);
             inline uint32_t getCoord() { return (_EdgePerm2 * 40320) + _CornerPerm; }
+            inline bool isSolved() { return (!_CornerPerm) && (!_EdgePerm2) && (!_UDSlice2); }
         };
     }
 
