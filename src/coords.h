@@ -70,6 +70,9 @@ namespace Coords {
             void rotate(Move move);
             inline uint32_t getCoord() { return (_CornerOrient * 495 * 2048) + (_UDSlice * 2048) + _EdgeOrient; }
             inline bool inG1() { return _CornerOrient == 1014 && _EdgeOrient == 2047 && UDSlice == 425; }
+
+            //Idk a better name. Needs to have the same name as the Phase2 coord cube one
+            inline bool inGoal() { return _CornerOrient == 1014 && _EdgeOrient == 2047 && UDSlice == 425; }
         };
     }
     
@@ -96,6 +99,9 @@ namespace Coords {
             void rotate(Move move);
             inline uint32_t getCoord() { return (_EdgePerm2 * 40320) + _CornerPerm; }
             inline bool isSolved() { return (!_CornerPerm) && (!_EdgePerm2) && (!_UDSlice2); }
+
+            //Idk a better name. Needs to have the same name as the Phase1 coord cube one
+            inline bool inGoal() { return (!_CornerPerm) && (!_EdgePerm2) && (!_UDSlice2); }
         };
     }
 

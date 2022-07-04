@@ -13,26 +13,26 @@ class TwoPhaseSolver {
     Patterns<Coords::Phase1::Cube, PHASE1_PATTERNS_SIZE> phase1_patterns;
     Patterns<Coords::Phase2::Cube, PHASE2_PATTERNS_SIZE> phase2_patterns;
 
-    template<Phase phase, class CUBE>
+    template<Phase phase = PHASE1, typename CUBE>
     inline uint8_t heuristic(CUBE &cube) {
-        if (phase == PHASE1) { return phase1_patterns.getDepth(cube); }
-        else                 { return phase2_patterns.getDepth(cube); }
+        return phase1_patterns.getDepth(cube);
     }
+    //The phase 2 version is someone down there cause the compiler doesn't want it here
 
     template<Phase phase, class CUBE> inline uint8_t search(std::vector<Move> &path, unsigned int g, unsigned int bound, CUBE cube) {
         Move last_move = path.back();
         cube.rotate(last_move);
-        uint8_t f = g + heuristic<Phase phase, class CUBE>(cube);
+        uint8_t f = g + heuristic<phase, CUBE>(cube);
 
-        if (cube_state == SOLVED ? cube.isSolved() : cube.inG1()) {
+        if (cube.inGoal()) {
             return FOUND;
         } else if (f > bound) {
             return f;
         }
         uint8_t min = 0xFE; // Set above upper bound
         
-        std::vector<Move> branching_moves = cube_state == G1 ? all_moves : movesAfterG1; //Moves to consider
-        for (Move move : branching_moves) {
+        for (int i = 0; i < (phase == PHASE1 ? 18 : 10); i++) {
+            Move move = phase == PHASE1 ? all_moves[i] : movesAfterG1[i];
             //Pruning here
             if ((move & 0b00111) != (last_move & 0b00111)) { // There is no reason why you should move the same layer twice
                 path.push_back(move);
@@ -77,3 +77,9 @@ class TwoPhaseSolver {
     std::vector<Move> solve(Coords::Phase1::Cube cube);
     std::vector<Move> solve(Cube &cube);
 };
+
+//Sadly gotta put this down here
+template<>
+inline uint8_t TwoPhaseSolver::heuristic<PHASE2, Coords::Phase2::Cube>(Coords::Phase2::Cube &cube) {
+    return phase2_patterns.getDepth(cube);
+}
