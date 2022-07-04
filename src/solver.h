@@ -73,7 +73,8 @@ class TwoPhaseSolver {
     }
 
   public:
-    TwoPhaseSolver() : phase1_patterns("./databases/Phase1.patterns"), phase2_patterns("./databases/Phase1.patterns") {}
+    TwoPhaseSolver(std::string phase1_patterns_file_name, std::string phase2_patterns_file_name) :
+    phase1_patterns(phase1_patterns_file_name), phase2_patterns(phase2_patterns_file_name) {}
     std::vector<Move> solve(Coords::Phase1::Cube cube);
     std::vector<Move> solve(Cube &cube);
 };

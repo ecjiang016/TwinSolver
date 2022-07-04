@@ -95,7 +95,8 @@ int main(int argc, char * argv[]) {
     cube.print();
 
     std::cout << "Starting search..." << std::endl;
-    std::vector<Move> solution = TwoPhaseSolver().solve(coord_cube);
+    std::vector<Move> solution = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns").solve(coord_cube);
+    std::cout << "Finished search." << std::endl;
     
     std::cout << "Solution: ";
     for (Move move : solution) {
