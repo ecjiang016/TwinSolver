@@ -1,6 +1,7 @@
 #pragma once
 #include "cube.h"
 #include "coords.h"
+#include <assert.h>
 #include <vector>
 #include <fstream>
 #include <stdint.h>
