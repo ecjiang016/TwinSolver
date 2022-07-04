@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include <assert.h>
 #include "solver.h"
 
 //These two functions for splitting strings is rom https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
