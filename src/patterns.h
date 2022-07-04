@@ -66,6 +66,7 @@ class Patterns {
     Patterns(std::string file_name) {
         std::ifstream file;
         file.open(file_name, std::ios::binary);
+        if (!file.is_open()) { std::cout << "Couldn't open file '" << file_name << "'" << std::endl; }
 		assert(file.is_open());
         file.seekg(0, std::ios::end);
         size_t file_size = file.tellg();
