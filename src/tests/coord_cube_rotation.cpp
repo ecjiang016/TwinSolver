@@ -42,4 +42,21 @@ int main() {
         assert(cube.getEdgePerm2() == coord_cube.getEdgePerm2());
         assert(cube.getUDSlice2() == coord_cube.getUDSlice2());
     }
+
+    //Phase 1 coord cube
+    Coords::Phase1::Cube p1_coord_cube;
+    for (int i = 0; i < 100000; i++) {
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> dist18(0, 17);
+
+        Move move = all_moves[dist18(rng)];
+        cube.rotate(move);
+        p1_coord_cube.rotate(move);
+
+        assert(cube.getCornerOrient() == p1_coord_cube.getCornerOrient());
+        assert(cube.getEdgeOrient() == p1_coord_cube.getEdgeOrient());
+        assert(cube.getUDSlice() == p1_coord_cube.getUDSlice());
+    }
+    
 }
