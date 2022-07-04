@@ -67,32 +67,35 @@ Move str_to_move(std::string move_str) {
 //Run with ./main.exe "Scramble with standard cube notation"
 //Ex: ./main.exe "B F2 U' L F' L2 D' R2 B D2 B' F L2 U2 R F' R2 D2 U2 R2 D L' U2 B' U' B' F R' D2 B"
 int main(int argc, char * argv[]) {
-    std::string scramble_str;
+    std::vector<Move> scramble;
     if (argc == 1) {
-        scramble_str = "";
         std::cout << "No scramble provided" << std::endl;
     } else if (argc == 2) {
-       scramble_str = argv[1];
+        std::string scramble_str = argv[1];
+        std::cout << "\nScramble: " << scramble_str << std::endl;
+        for (std::string move_str : split(scramble_str, ' ')) {
+            scramble.push_back(str_to_move(move_str));
+        }
     } else {
         std::cout << "Invalid argument" << std::endl;
         exit(0);
     }
-    std::cout << "\nScramble: " << scramble_str << std::endl;
-    std::vector<Move> scramble;
-    for (std::string move_str : split(scramble_str, ' ')) {
-        scramble.push_back(str_to_move(move_str));
-    }
 
+    std::cout << "Initalizing move tables..." << std::endl;
+    MoveTable::initalizeTables();
+    
     Cube cube = Cube();
+    Coords::Phase1::Cube coord_cube = Coords::Phase1::Cube();
     for (Move move : scramble) {
         cube.rotate(move);
+        coord_cube.rotate(move);
     }
 
     std::cout << std::endl;
     cube.print();
 
     std::cout << "Starting search..." << std::endl;
-    std::vector<Move> solution = TwoPhaseSolver().solve(cube);
+    std::vector<Move> solution = TwoPhaseSolver().solve(coord_cube);
     
     std::cout << "Solution: ";
     for (Move move : solution) {
