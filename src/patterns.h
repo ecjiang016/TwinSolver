@@ -65,6 +65,7 @@ class Patterns {
     Patterns(std::string file_name) {
         std::ifstream file;
         file.open(file_name, std::ios::binary);
+		assert(file.is_open());
         file.seekg(0, std::ios::end);
         size_t file_size = file.tellg();
         file.seekg(0, std::ios::beg);
