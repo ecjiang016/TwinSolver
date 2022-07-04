@@ -69,10 +69,15 @@ namespace Coords {
 
             void rotate(Move move);
             inline uint32_t getCoord() { return (_CornerOrient * 495 * 2048) + (_UDSlice * 2048) + _EdgeOrient; }
-            inline bool inG1() { return _CornerOrient == 1014 && _EdgeOrient == 2047 && UDSlice == 425; }
+            inline bool inG1() { return (this->_CornerOrient == 1014) && (this->_EdgeOrient == 2047) && (this->_UDSlice == 425); }
 
             //Idk a better name. Needs to have the same name as the Phase2 coord cube one
-            inline bool inGoal() { return _CornerOrient == 1014 && _EdgeOrient == 2047 && UDSlice == 425; }
+            inline bool inGoal() { return (this->_CornerOrient == 1014) && (this->_EdgeOrient == 2047) && (this->_UDSlice == 425); }
+
+            inline uint16_t getCornerOrient() { return _CornerOrient; }
+            inline uint16_t getEdgeOrient()   { return _EdgeOrient;   }
+            inline uint16_t getUDSlice()      { return _UDSlice;      }
+
         };
     }
     
@@ -98,10 +103,10 @@ namespace Coords {
 
             void rotate(Move move);
             inline uint32_t getCoord() { return (_EdgePerm2 * 40320) + _CornerPerm; }
-            inline bool isSolved() { return (!_CornerPerm) && (!_EdgePerm2) && (!_UDSlice2); }
+            inline bool isSolved() { return (this->_CornerPerm == 0) && (this->_EdgePerm2 == 0) && (this->_UDSlice2 == 0); }
 
             //Idk a better name. Needs to have the same name as the Phase1 coord cube one
-            inline bool inGoal() { return (!_CornerPerm) && (!_EdgePerm2) && (!_UDSlice2); }
+            inline bool inGoal() { return (this->_CornerPerm == 0) && (this->_EdgePerm2 == 0) && (this->_UDSlice2 == 0); }
         };
     }
 
