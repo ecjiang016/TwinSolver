@@ -60,6 +60,7 @@ Move str_to_move(std::string move_str) {
         return L2;
     } else {
         assert("Unrecognized move");
+        return NULL_MOVE;
     }
 }
 
