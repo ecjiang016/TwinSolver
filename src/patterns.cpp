@@ -15,7 +15,7 @@ struct HashCache {
     inline bool getBit(hash_type hash) { return hashes[hash / 4].getBit(hash % 4); }
 };
 
-template<class CUBE, size_t DatabaseSize, typename hash_type>
+template<class CUBE, size_t DatabaseSize, typename hash_type, bool ALL_MOVES>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -42,7 +42,8 @@ void buildDatabase(std::string save_file_name) {
         queue.pop_front();
 
         //Add all the nodes from that node to the queue
-        for (Move move : all_moves) {
+        for (int i = 0; i < (ALL_MOVES == true ? 18 : 10); i++) {
+            Move move = ALL_MOVES == true ? all_moves[i] : movesAfterG1[i];
             CUBE new_cube = cube;
             new_cube.rotate(move);
             hash = new_cube.getCoord();
@@ -85,6 +86,6 @@ void buildDatabase(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initalizeTables();
-    buildDatabase<Coords::Phase1::Cube, PHASE1_PATTERNS_SIZE, uint32_t>("Phase1.patterns");
-    buildDatabase<Coords::Phase2::Cube, PHASE2_PATTERNS_SIZE, uint32_t>("Phase2.patterns");
+    buildDatabase<Coords::Phase1::Cube, PHASE1_PATTERNS_SIZE, uint32_t, true >("Phase1.patterns");
+    buildDatabase<Coords::Phase2::Cube, PHASE2_PATTERNS_SIZE, uint32_t, false>("Phase2.patterns");
 }
