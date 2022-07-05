@@ -455,22 +455,22 @@ std::ostream &operator<<(std::ostream &out, const Move move) {
             str = "L";
             break;
         case Dp:
-            str = "Dp";
+            str = "D'";
             break;
         case Fp:
-            str = "Fp";
+            str = "F'";
             break;
         case Rp:
-            str = "Rp";
+            str = "R'";
             break;
         case Up:
-            str = "Up";
+            str = "U'";
             break;
         case Bp:
-            str = "Bp";
+            str = "B'";
             break;
         case Lp:
-            str = "Lp";
+            str = "L'";
             break;
         case D2:
             str = "D2";
@@ -523,22 +523,22 @@ std::ostream &operator<<(std::ostream &out, const std::vector<Move> moves) {
                 str += "L ";
                 break;
             case Dp:
-                str += "Dp ";
+                str += "D' ";
                 break;
             case Fp:
-                str += "Fp ";
+                str += "F' ";
                 break;
             case Rp:
-                str += "Rp ";
+                str += "R' ";
                 break;
             case Up:
-                str += "Up ";
+                str += "U' ";
                 break;
             case Bp:
-                str += "Bp ";
+                str += "B' ";
                 break;
             case Lp:
-                str += "Lp ";
+                str += "L' ";
                 break;
             case D2:
                 str += "D2 ";
