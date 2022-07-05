@@ -67,6 +67,12 @@ namespace Coords {
                 _UDSlice = cube.getUDSlice();
             }
 
+            Cube(const Cube &cube) {
+                _CornerOrient = cube._CornerOrient;
+                _EdgeOrient = cube._EdgeOrient;
+                _UDSlice = cube._UDSlice;
+            }
+
             void rotate(Move move);
             inline uint32_t getCoord() { return (_CornerOrient * 495 * 2048) + (_UDSlice * 2048) + _EdgeOrient; }
             inline bool inG1() { return (this->_CornerOrient == 1014) && (this->_EdgeOrient == 2047) && (this->_UDSlice == 425); }
@@ -99,6 +105,12 @@ namespace Coords {
                 _CornerPerm = cube.getCornerPerm();
                 _EdgePerm2 = cube.getEdgePerm2();
                 _UDSlice2 = cube.getEdgePerm2();
+            }
+
+            Cube(const Cube &cube) {
+                _CornerPerm = cube._CornerPerm;
+                _EdgePerm2 = cube._EdgePerm2;
+                _UDSlice2 = cube._UDSlice2;
             }
 
             void rotate(Move move);
