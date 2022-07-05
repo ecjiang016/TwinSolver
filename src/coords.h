@@ -104,7 +104,7 @@ namespace Coords {
             Cube(::Cube &cube) {
                 _CornerPerm = cube.getCornerPerm();
                 _EdgePerm2 = cube.getEdgePerm2();
-                _UDSlice2 = cube.getEdgePerm2();
+                _UDSlice2 = cube.getUDSlice2();
             }
 
             Cube(const Cube &cube) {
