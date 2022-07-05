@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <iostream>
+#include <vector>
 #include <string>
 #include <bit>
 #define C64(constantU64) constantU64##ULL
@@ -195,5 +196,6 @@ inline void roll<DOUBLE_TURN>(uint64_t &side) {
 }
 
 std::ostream &operator<<(std::ostream &out, const Move move);
+std::ostream &operator<<(std::ostream &out, const std::vector<Move> moves);
 
 void print_side(uint64_t &side);

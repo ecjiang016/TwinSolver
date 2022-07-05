@@ -1,6 +1,5 @@
 #include "cube.h"
 #include <stdexcept>
-#include <vector>
 
 bool Cube::inG1() {
 	return !((sides[1] | sides[2] | sides[4] | sides[5]) & MIDDLE_MASK & (SOLID_FACE_WHITE | SOLID_FACE_YELLOW)) && // If all edge pieces that belong in the middle layer are in the middle layer
@@ -494,6 +493,75 @@ std::ostream &operator<<(std::ostream &out, const Move move) {
         case NULL_MOVE:
             str = "NULL";
             break;
+    }
+
+    return out << str;
+
+}
+
+std::ostream &operator<<(std::ostream &out, const std::vector<Move> moves) {
+    std::string str;
+
+    for (Move move : moves) {
+        switch (move) {
+            case D:
+                str += "D";
+                break;
+            case F:
+                str += "F ";
+                break;
+            case R:
+                str += "R ";
+                break;
+            case U:
+                str += "U ";
+                break;
+            case B:
+                str += "B ";
+                break;
+            case L:
+                str += "L ";
+                break;
+            case Dp:
+                str += "Dp ";
+                break;
+            case Fp:
+                str += "Fp ";
+                break;
+            case Rp:
+                str += "Rp ";
+                break;
+            case Up:
+                str += "Up ";
+                break;
+            case Bp:
+                str += "Bp ";
+                break;
+            case Lp:
+                str += "Lp ";
+                break;
+            case D2:
+                str += "D2 ";
+                break;
+            case F2:
+                str += "F2 ";
+                break;
+            case R2:
+                str += "R2 ";
+                break;
+            case U2:
+                str += "U2 ";
+                break;
+            case B2:
+                str += "B2 ";
+                break;
+            case L2:
+                str += "L2 ";
+                break;
+            case NULL_MOVE:
+                str += "NULL ";
+                break;
+        }
     }
 
     return out << str;
