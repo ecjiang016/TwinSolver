@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "solver.h"
 
-//These two functions for splitting strings is rom https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
+//These two functions for splitting strings is from https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
 template <typename Out>
 void split(const std::string &s, char delim, Out result) {
     std::istringstream iss(s);
