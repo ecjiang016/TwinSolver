@@ -52,7 +52,7 @@ class TwoPhaseSolver {
         return min;
     }
 
-    template<Phase phase, class CUBE> inline std::vector<Move> IDA_star(CUBE cube) {
+    template<Phase phase, class CUBE> inline std::vector<Move> IDA_star(CUBE &cube) {
         uint8_t bound = heuristic<phase, CUBE>(cube);
         std::vector<Move> path;
         path.reserve(30);
@@ -75,8 +75,7 @@ class TwoPhaseSolver {
   public:
     TwoPhaseSolver(std::string phase1_patterns_file_name, std::string phase2_patterns_file_name) :
     phase1_patterns(phase1_patterns_file_name), phase2_patterns(phase2_patterns_file_name) {}
-    std::vector<Move> solve(Coords::Phase1::Cube cube);
-    std::vector<Move> solve(Cube &cube);
+    std::vector<Move> solve(Cube cube);
 };
 
 //Sadly gotta put this down here

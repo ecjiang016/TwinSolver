@@ -85,17 +85,15 @@ int main(int argc, char * argv[]) {
     MoveTable::initalizeTables();
     
     Cube cube = Cube();
-    Coords::Phase1::Cube coord_cube = Coords::Phase1::Cube();
     for (Move move : scramble) {
         cube.rotate(move);
-        coord_cube.rotate(move);
     }
 
     std::cout << std::endl;
     cube.print();
 
     std::cout << "Starting search..." << std::endl;
-    std::vector<Move> solution = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns").solve(coord_cube);
+    std::vector<Move> solution = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns").solve(cube);
     std::cout << "Finished search." << std::endl;
     
     std::cout << "Solution: ";
