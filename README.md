@@ -1,6 +1,8 @@
 # TwinSolver
 A two phase Rubik's Cube solving algorithm based on Herbert Kociemba's 2 phase algorithm.
 
+Still a work in progress
+
 
 ## Contents
 - [Command Line Usage](#command-line-usage)
