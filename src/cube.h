@@ -110,9 +110,15 @@ const uint8_t BLUE_GREEN = BLUE | GREEN;
 const uint8_t RED_ORANGE = RED | ORANGE;
 
 constexpr uint64_t concatenate(Color color1, Color color2, Color color3, Color color4,
-                Color color5, Color color6, Color color7, Color color8) {
-    return (((color1 | C64(0)) << 56) | ((color2 | C64(0)) << 48) | ((color3 | C64(0)) << 40) | ((color4 | C64(0)) << 32) |
-        (color5 << 24) | (color6 << 16) | (color7 << 8) | color8);
+                               Color color5, Color color6, Color color7, Color color8) {
+    return ((uint64_t(color1) << 56) | (uint64_t(color2) << 48) | (uint64_t(color3) << 40) | (uint64_t(color4) << 32) |
+            (uint64_t(color5) << 24) | (uint64_t(color6) << 16) | (uint64_t(color7) <<  8) | uint64_t(color8));
+}
+
+inline uint64_t makeSide(Color color1, Color color2, Color color3, Color color4,
+                         Color color5, Color color6, Color color7, Color color8) {
+    return ((uint64_t(color1) << 56) | (uint64_t(color2) << 48) | (uint64_t(color3) << 40) | (uint64_t(color4) << 32) |
+            (uint64_t(color5) << 24) | (uint64_t(color6) << 16) | (uint64_t(color7) <<  8) | uint64_t(color8));
 }
 
 class Cube {
@@ -138,6 +144,15 @@ class Cube {
         sides[3] = SOLID_FACE_YELLOW;
         sides[4] = SOLID_FACE_GREEN;
         sides[5] = SOLID_FACE_ORANGE;
+    }
+
+    Cube(uint64_t white_side, uint64_t blue_side, uint64_t red_side, uint64_t yellow_side, uint64_t green_side, uint64_t orange_side) {
+        sides[0] = white_side;
+        sides[1] = blue_side;
+        sides[2] = red_side;
+        sides[3] = yellow_side;
+        sides[4] = green_side;
+        sides[5] = orange_side;
     }
 
     Cube(const Cube &cube) { //Copy constructor
