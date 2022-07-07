@@ -109,16 +109,16 @@ const uint8_t WHITE_YELLOW = WHITE | YELLOW;
 const uint8_t BLUE_GREEN = BLUE | GREEN;
 const uint8_t RED_ORANGE = RED | ORANGE;
 
-constexpr uint64_t concatenate(Color color1, Color color2, Color color3, Color color4,
-                               Color color5, Color color6, Color color7, Color color8) {
-    return ((uint64_t(color1) << 56) | (uint64_t(color2) << 48) | (uint64_t(color3) << 40) | (uint64_t(color4) << 32) |
-            (uint64_t(color5) << 24) | (uint64_t(color6) << 16) | (uint64_t(color7) <<  8) | uint64_t(color8));
+constexpr uint64_t concatenate(Color color0, Color color1, Color color2, Color color3,
+                               Color color4, Color color5, Color color6, Color color7) {
+    return ((uint64_t(color0) << 56) | (uint64_t(color1) << 48) | (uint64_t(color2) << 40) | (uint64_t(color3) << 32) |
+            (uint64_t(color4) << 24) | (uint64_t(color5) << 16) | (uint64_t(color6) <<  8) | uint64_t(color7));
 }
 
-inline uint64_t makeSide(Color color1, Color color2, Color color3, Color color4,
-                         Color color5, Color color6, Color color7, Color color8) {
-    return ((uint64_t(color1) << 56) | (uint64_t(color2) << 48) | (uint64_t(color3) << 40) | (uint64_t(color4) << 32) |
-            (uint64_t(color5) << 24) | (uint64_t(color6) << 16) | (uint64_t(color7) <<  8) | uint64_t(color8));
+inline uint64_t makeSide(Color color0, Color color1, Color color2, Color color3,
+                         Color color4, Color color5, Color color6, Color color7) {
+    return ((uint64_t(color0) << 56) | (uint64_t(color1) << 48) | (uint64_t(color2) << 40) | (uint64_t(color3) << 32) |
+            (uint64_t(color4) << 24) | (uint64_t(color5) << 16) | (uint64_t(color6) <<  8) | uint64_t(color7));
 }
 
 class Cube {
