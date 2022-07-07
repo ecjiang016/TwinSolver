@@ -1,7 +1,34 @@
 # TwinSolver
 A two phase Rubik's Cube solving algorithm based on Herbert Kociemba's 2 phase algorithm.
 
-# Usage
+
+# Command Line Usage
+### To compile with g++: <br>
+```
+$ cd src
+$ g++ -O3 -std=c++14 main.cpp cube.cpp moves.cpp coords.cpp patterns.cpp solver.cpp -o main.exe
+```
+
+### Generating pattern files: <br>
+(With `src` as the working directory)
+```
+$ g++ -O3 -std=c++14 database_build.cpp cube.cpp moves.cpp coords.cpp patterns.cpp -o database_build.exe
+$ ./database_build.exe
+```
+Note that the computation does take a while and the files do take up a bit of storage (~1.78 GB).
+
+### Running the solver
+(With `src` as the working directory)
+```
+$ ./main.exe "scramble in standard notation"
+```
+Example:
+```
+$ ./main.exe "U D' L2 B R F' U2 R2 D"
+```
+
+
+# General Usage
 ### Requirements
 The solver requires two files, `"Phase1.patterns" and "Phase2.patterns"` which contain precomputed data that the solver uses.
 
