@@ -2,6 +2,15 @@
 A two phase Rubik's Cube solving algorithm based on Herbert Kociemba's 2 phase algorithm.
 
 
+## Contents
+- [Command Line Usage](#command-line-usage)
+- [General Usage](#general-usage)
+  - [Requirements](#requirements)
+  - [Move Tables](#move-tables)
+  - [Cube](#the-cube)
+  - [Solver](#the-solver)
+  - [Example](#full-example-code)
+
 # Command Line Usage
 ### To compile with g++: <br>
 ```
