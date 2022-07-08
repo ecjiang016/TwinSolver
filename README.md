@@ -26,7 +26,7 @@ $ g++ -O3 -std=c++14 main.cpp cube.cpp moves.cpp coords.cpp patterns.cpp solver.
 $ g++ -O3 -std=c++14 database_build.cpp cube.cpp moves.cpp coords.cpp patterns.cpp -o database_build.exe
 $ ./database_build.exe
 ```
-Note that the computation does take a while and the files do take up a bit of storage (~1.78 GB).
+Note that the computation does take a while (A little less than 20 minutes on my computer) and the files do take up a bit of storage (~1.78 GB).
 
 ### Running the solver
 (With `src` as the working directory)
@@ -44,7 +44,7 @@ $ ./main.exe "U D' L2 B R F' U2 R2 D"
 The solver requires two files, `"Phase1.patterns" and "Phase2.patterns"` which contain precomputed data that the solver uses.
 
 Those files can be created by running `database_build.cpp` which will generate the files and put them in a database folder. <br>
-Note that the computation does take a while and the files do take up a bit of storage (~1.78 GB).
+Note that the computation does take a while (A little less than 20 minutes on my computer) and the files do take up a bit of storage (~1.78 GB).
 
 ### Move Tables
 The solver uses lookup tables to accelerate turning the cube. <br>
