@@ -6,32 +6,8 @@
 #include <fstream>
 #include <stdint.h>
 
-const size_t CORNER_PATTERNS_SIZE    =  88179840; // 8! * 3^7
-const size_t EDGE_PERM_PATTERNS_SIZE = 479001600; // 12!
-const size_t EDGE_7_PATTERNS_SIZE    = 510935040; // 12P7 * 2^7
-const size_t EDGE_6_PATTERNS_SIZE    = 42577920;
 const size_t PHASE1_PATTERNS_SIZE    = 2217093120;
 const size_t PHASE2_PATTERNS_SIZE    = 1625702400;
-
-// Masks
-//
-// Each number corresponds to a byte
-// Byte order:
-// 7 0 1
-// 6   2
-// 5 4 3
-
-//                                7 6 5 4 3 2 1 0
-const uint64_t CORNER_MASK_0 = 0xFF00000000000000;
-const uint64_t CORNER_MASK_1 = 0x000000000000FF00;
-const uint64_t CORNER_MASK_2 = 0x00000000FF000000;
-const uint64_t CORNER_MASK_3 = 0x0000FF0000000000;
-
-//For convenience
-const uint64_t CORNER_MASK_4 = CORNER_MASK_0;
-const uint64_t CORNER_MASK_5 = CORNER_MASK_1;
-const uint64_t CORNER_MASK_6 = CORNER_MASK_2;
-const uint64_t CORNER_MASK_7 = CORNER_MASK_3;
 
 struct Nibbles {
   private:
