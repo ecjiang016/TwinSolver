@@ -6,12 +6,24 @@
 #define C64(constantU64) constantU64##ULL
 
 enum Color : uint8_t {
-    WHITE = 1,
-    BLUE = 2,
-    RED = 4,
-    YELLOW = 8,
-    GREEN = 16,
-    ORANGE = 32
+    WHITE = 1,  //0b000001
+    BLUE = 2,   //0b000010
+    RED = 4,    //0b000100
+    YELLOW = 8, //0b001000
+    GREEN = 16, //0b010000
+    ORANGE = 32 //0b100000
+};
+
+// Makes indexing the cube sides more readible
+namespace CubeSide {
+    enum Color : uint8_t {
+        WHITE = 0,
+        BLUE = 1,
+        RED = 2,
+        YELLOW = 3,
+        GREEN = 4,
+        ORANGE = 5
+    };
 };
 
 enum Move : uint8_t {
@@ -132,6 +144,28 @@ inline uint64_t rotr(uint64_t inp, int roll_by) {
     return (inp >> roll_by) | (inp << (64 - roll_by));
 }
 
+enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };
+
+template <MoveType type = CLOCKWISE>
+inline void roll(uint64_t &side) {
+    side = rotl(side, 16);
+}
+
+template <>
+inline void roll<COUNTER_CLOCKWISE>(uint64_t &side) {
+    side = rotr(side, 16);
+}
+
+template<>
+inline void roll<DOUBLE_TURN>(uint64_t &side) {
+    side = rotl(side, 32);
+}
+
+inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
+    side &= ~mask; // Set the bits that will be inserted into to zero
+    side |= inserted_side & mask; // Toggle the bits to insert
+}
+
 class Cube {
   private:
     inline uint16_t getCornerCubieOrientation(uint64_t &FB, uint64_t &UD) {
@@ -177,6 +211,34 @@ class Cube {
 
 	void rotate(Move move);
 	
+    template<MoveType = CLOCKWISE>
+    inline void sym_rotate_UD() {
+        roll<CLOCKWISE>(sides[CubeSide::YELLOW]);
+        roll<COUNTER_CLOCKWISE>(sides[CubeSide::WHITE]);
+
+        auto convert_face_color = [&](CubeSide::Color side_color) {
+            for (int i = 0; i < 64; i += 8) {
+                Color color = Color((sides[side_color] >> i) & 0xFF);
+                if (color == RED) { color = BLUE; }
+                if (color == GREEN) { color = RED; }
+                if (color == ORANGE) { color = GREEN; }
+                if (color == BLUE) { color = ORANGE; }
+                sides[side_color] &= ~(0xFFULL << i);
+                sides[side_color] |= uint64_t(color) << i;
+            }
+        };
+
+        convert_face_color(CubeSide::BLUE);
+        convert_face_color(CubeSide::RED);
+        convert_face_color(CubeSide::GREEN);
+        convert_face_color(CubeSide::ORANGE);
+
+        sides[CubeSide::BLUE] = sides[CubeSide::RED];
+        sides[CubeSide::RED] = sides[CubeSide::GREEN];
+        sides[CubeSide::GREEN] = sides[CubeSide::ORANGE];
+        sides[CubeSide::ORANGE] = sides[CubeSide::BLUE]; 
+    }
+
 	bool inG1();
 
 	bool isSolved() {
@@ -199,26 +261,62 @@ class Cube {
     uint8_t  getUDSlice2(); //Phase 2 UDSlice coordinate
 };
 
-inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
-    side &= ~mask; // Set the bits that will be inserted into to zero
-    side |= inserted_side & mask; // Toggle the bits to insert
-}
+template<>
+inline void Cube::sym_rotate_UD<COUNTER_CLOCKWISE>() {
+    roll<COUNTER_CLOCKWISE>(sides[CubeSide::YELLOW]);
+    roll<CLOCKWISE>(sides[CubeSide::WHITE]);
 
-enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };
+    auto convert_face_color = [&](CubeSide::Color side_color) {
+        for (int i = 0; i < 64; i += 8) {
+            Color color = Color((sides[side_color] >> i) & 0xFF);
+            if (color == BLUE) { color = RED; }
+            if (color == RED) { color = GREEN; }
+            if (color == GREEN) { color = ORANGE; }
+            if (color == ORANGE) { color = BLUE; }
+            sides[side_color] &= ~(0xFFULL << i);
+            sides[side_color] |= uint64_t(color) << i;
+        }
+    };
 
-template <MoveType type = CLOCKWISE>
-inline void roll(uint64_t &side) {
-    side = rotl(side, 16);
-}
+    convert_face_color(CubeSide::BLUE);
+    convert_face_color(CubeSide::RED);
+    convert_face_color(CubeSide::GREEN);
+    convert_face_color(CubeSide::ORANGE);
 
-template <>
-inline void roll<COUNTER_CLOCKWISE>(uint64_t &side) {
-    side = rotr(side, 16);
+    sides[CubeSide::RED] = sides[CubeSide::BLUE];
+    sides[CubeSide::GREEN] = sides[CubeSide::RED];
+    sides[CubeSide::ORANGE] = sides[CubeSide::GREEN];
+    sides[CubeSide::BLUE] = sides[CubeSide::ORANGE]; 
+
 }
 
 template<>
-inline void roll<DOUBLE_TURN>(uint64_t &side) {
-    side = rotl(side, 32);
+inline void Cube::sym_rotate_UD<DOUBLE_TURN>() {
+    roll<DOUBLE_TURN>(sides[CubeSide::YELLOW]);
+    roll<DOUBLE_TURN>(sides[CubeSide::WHITE]);
+
+    auto convert_face_color = [&](CubeSide::Color side_color) {
+        for (int i = 0; i < 64; i += 8) {
+            Color color = Color((sides[side_color] >> i) & 0xFF);
+            if (color == BLUE) { color = GREEN; }
+            if (color == RED) { color = ORANGE; }
+            if (color == GREEN) { color = BLUE; }
+            if (color == ORANGE) { color = RED; }
+            sides[side_color] &= ~(0xFFULL << i);
+            sides[side_color] |= uint64_t(color) << i;
+        }
+    };
+
+    convert_face_color(CubeSide::BLUE);
+    convert_face_color(CubeSide::RED);
+    convert_face_color(CubeSide::GREEN);
+    convert_face_color(CubeSide::ORANGE);
+
+    sides[CubeSide::RED] = sides[CubeSide::ORANGE];
+    sides[CubeSide::GREEN] = sides[CubeSide::BLUE];
+    sides[CubeSide::ORANGE] = sides[CubeSide::RED];
+    sides[CubeSide::BLUE] = sides[CubeSide::GREEN]; 
+
 }
 
 std::ostream &operator<<(std::ostream &out, const Move move);
