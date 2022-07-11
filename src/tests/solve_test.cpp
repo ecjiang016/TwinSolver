@@ -1,9 +1,10 @@
 #include "../cube.h"
 #include "../moves.h"
 #include "../solver.h"
+#include <chrono>
 
 int main() {
-    Move scramble[] = {U2, L};
+    Move scramble[] = {U, Bp, Fp, Dp, Bp, F, Dp, L, D2, R, Fp, D2, U2, Lp, Bp, D2, U, B, F2, D, Rp, U, F, U2, F, U, L, R, U, Lp};
 
     std::cout << "Initalizing move tables..." << std::endl;
     MoveTable::initalizeTables();
@@ -15,14 +16,17 @@ int main() {
     cube.print();
 
     std::cout << "Starting search..." << std::endl;
-    std::vector<Move> solution = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns").solve(cube);
-    std::cout << "Finished search." << std::endl;
+    TwoPhaseSolver solver("./databases/Phase1.patterns", "./databases/Phase2.patterns");
+    auto start_time = std::chrono::high_resolution_clock::now();
+    std::vector<Move> solution = solver.solve(cube);
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    std::cout << "Finished search (" << millisec << " ms)" << std::endl;
     
-    std::cout << "Solution: " << solution << std::endl;
-
-    Coords::Phase2::Cube ccube;
-    for (Move move: scramble) { ccube.rotate(move); }
-    for (Move move : solution) { ccube.rotate(move); }
-    std::cout << ccube.isSolved();
+    std::cout << "Solution: ";
+    for (Move move : solution) {
+        std::cout << move << " ";
+    }
+    std::cout << std::endl;
 
 }
