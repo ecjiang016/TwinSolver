@@ -164,10 +164,10 @@ void Cube::rotate(Move move) {
 			store_red    = sides[2];
 			store_yellow = sides[3];
 			store_orange = sides[5];
-			insert(sides[0], std::__rotl(store_orange, 16), TOP_MASK); //Left -> Top
-			insert(sides[2], std::__rotl(store_white, 16), RIGHT_MASK); //Top -> Right 
-			insert(sides[3], std::__rotr(store_red, 16), TOP_MASK); //Right -> Top
-			insert(sides[5], std::__rotr(store_yellow, 16), LEFT_MASK); //Top -> Left
+			insert(sides[0], rotl(store_orange, 16), TOP_MASK); //Left -> Top
+			insert(sides[2], rotl(store_white, 16), RIGHT_MASK); //Top -> Right 
+			insert(sides[3], rotr(store_red, 16), TOP_MASK); //Right -> Top
+			insert(sides[5], rotr(store_yellow, 16), LEFT_MASK); //Top -> Left
 			break;
 		case Bp:
 			roll<COUNTER_CLOCKWISE>(sides[4]); //Green
@@ -176,10 +176,10 @@ void Cube::rotate(Move move) {
 			store_red    = sides[2];
 			store_yellow = sides[3];
 			store_orange = sides[5];
-			insert(sides[0], std::__rotr(store_red, 16), TOP_MASK); //Right -> Top
-			insert(sides[2], std::__rotl(store_yellow, 16), RIGHT_MASK); //Top -> Right 
-			insert(sides[3], std::__rotl(store_orange, 16), TOP_MASK); //Left -> Top
-			insert(sides[5], std::__rotr(store_white, 16), LEFT_MASK); //Top -> Left
+			insert(sides[0], rotr(store_red, 16), TOP_MASK); //Right -> Top
+			insert(sides[2], rotl(store_yellow, 16), RIGHT_MASK); //Top -> Right 
+			insert(sides[3], rotl(store_orange, 16), TOP_MASK); //Left -> Top
+			insert(sides[5], rotr(store_white, 16), LEFT_MASK); //Top -> Left
 			break;
 		case B2:
 			roll<DOUBLE_TURN>(sides[4]); //Green
@@ -360,7 +360,7 @@ void Cube::print() {
     std::string white_stickers[8];
     single_sticker = white_stickers;
     for (int shift = 0 ; shift < 64; shift += 8) {
-        switch ((std::__rotl(this->sides[0], 32) >> shift) & 0xFF) {
+        switch ((rotl(this->sides[0], 32) >> shift) & 0xFF) {
             case 1:
                 *single_sticker++ = "W";
                 break;
