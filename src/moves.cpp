@@ -12,6 +12,12 @@ namespace MoveTable {
     uint16_t CornerPerm[23][40320];
     uint16_t EdgePerm2[23][40320];
     uint8_t  UDSlice2[23][24];
+    
+    namespace SymUDRotate {
+        uint16_t CornerPerm[4][40320];
+        uint16_t EdgePerm2[4][40320];
+        uint8_t  UDSlice2[4][24];
+    }
 
     template<Coords::CoordType coord_type>
     void generateTable() {
@@ -45,6 +51,41 @@ namespace MoveTable {
             else if (coord_type == Coords::EdgePerm2)    { EdgePerm2[new_init_move][hash]    = new_init_cube.getEdgePerm2();    }
             else if (coord_type == Coords::UDSlice2)     { UDSlice2[new_init_move][hash]     = new_init_cube.getUDSlice2();     }
         }
+        //Process moves off of node for sym moves
+        if (coord_type == Coords::CornerPerm) {
+            Cube new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<CLOCKWISE>();
+            SymUDRotate::CornerPerm[1][hash] = new_init_cube.getCornerPerm();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+            SymUDRotate::CornerPerm[2][hash] = new_init_cube.getCornerPerm();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<DOUBLE_TURN>();
+            SymUDRotate::CornerPerm[3][hash] = new_init_cube.getCornerPerm();
+        } else if (coord_type == Coords::EdgePerm2) {
+            Cube new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<CLOCKWISE>();
+            SymUDRotate::EdgePerm2[1][hash] = new_init_cube.getEdgePerm2();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+            SymUDRotate::EdgePerm2[2][hash] = new_init_cube.getEdgePerm2();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<DOUBLE_TURN>();
+            SymUDRotate::EdgePerm2[3][hash] = new_init_cube.getEdgePerm2();
+        } else if (coord_type == Coords::UDSlice2) {
+            Cube new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<CLOCKWISE>();
+            SymUDRotate::UDSlice2[1][hash] = new_init_cube.getUDSlice2();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+            SymUDRotate::UDSlice2[2][hash] = new_init_cube.getUDSlice2();
+            new_init_cube = init_cube;
+            new_init_cube.sym_rotate_UD<DOUBLE_TURN>();
+            SymUDRotate::UDSlice2[3][hash] = new_init_cube.getUDSlice2();
+        }
+
+        else if (coord_type == Coords::EdgePerm2)    { SymUDRotate::EdgePerm2[NULL_MOVE][hash]  = hash; }
+        else if (coord_type == Coords::UDSlice2)     { SymUDRotate::UDSlice2[NULL_MOVE][hash]   = hash; }
 
         //Process the null move
         if      (coord_type == Coords::CornerOrient) { CornerOrient[NULL_MOVE][hash] = hash; }
@@ -53,6 +94,10 @@ namespace MoveTable {
         else if (coord_type == Coords::CornerPerm)   { CornerPerm[NULL_MOVE][hash]   = hash; }
         else if (coord_type == Coords::EdgePerm2)    { EdgePerm2[NULL_MOVE][hash]    = hash; }
         else if (coord_type == Coords::UDSlice2)     { UDSlice2[NULL_MOVE][hash]     = hash; }
+        //Process null move for sym moves
+        if      (coord_type == Coords::CornerPerm)   { SymUDRotate::CornerPerm[0][hash] = hash; }
+        else if (coord_type == Coords::EdgePerm2)    { SymUDRotate::EdgePerm2[0][hash]  = hash; }
+        else if (coord_type == Coords::UDSlice2)     { SymUDRotate::UDSlice2[0][hash]   = hash; }
 
         while (queue.size() != 0) {
             //Take node out of queue
@@ -97,6 +142,38 @@ namespace MoveTable {
                     else if (coord_type == Coords::EdgePerm2)    { EdgePerm2[new_move][hash]    = another_new_cube.getEdgePerm2();    }
                     else if (coord_type == Coords::UDSlice2)     { UDSlice2[new_move][hash]     = another_new_cube.getUDSlice2();     }
                 }
+                //Process moves off of node for sym moves
+                if (coord_type == Coords::CornerPerm) {
+                    Cube another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<CLOCKWISE>();
+                    SymUDRotate::CornerPerm[1][hash] = another_new_cube.getCornerPerm();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+                    SymUDRotate::CornerPerm[2][hash] = another_new_cube.getCornerPerm();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<DOUBLE_TURN>();
+                    SymUDRotate::CornerPerm[3][hash] = another_new_cube.getCornerPerm();
+                } else if (coord_type == Coords::EdgePerm2) {
+                    Cube another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<CLOCKWISE>();
+                    SymUDRotate::EdgePerm2[1][hash] = another_new_cube.getEdgePerm2();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+                    SymUDRotate::EdgePerm2[2][hash] = another_new_cube.getEdgePerm2();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<DOUBLE_TURN>();
+                    SymUDRotate::EdgePerm2[3][hash] = another_new_cube.getEdgePerm2();
+                } else if (coord_type == Coords::UDSlice2) {
+                    Cube another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<CLOCKWISE>();
+                    SymUDRotate::UDSlice2[1][hash] = another_new_cube.getUDSlice2();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<COUNTER_CLOCKWISE>();
+                    SymUDRotate::UDSlice2[2][hash] = another_new_cube.getUDSlice2();
+                    another_new_cube = init_cube;
+                    another_new_cube.sym_rotate_UD<DOUBLE_TURN>();
+                    SymUDRotate::UDSlice2[3][hash] = another_new_cube.getUDSlice2();
+                }
 
                 //Process the null move
                 if      (coord_type == Coords::CornerOrient) { CornerOrient[NULL_MOVE][hash] = hash; }
@@ -105,6 +182,10 @@ namespace MoveTable {
                 else if (coord_type == Coords::CornerPerm)   { CornerPerm[NULL_MOVE][hash]   = hash; }
                 else if (coord_type == Coords::EdgePerm2)    { EdgePerm2[NULL_MOVE][hash]    = hash; }
                 else if (coord_type == Coords::UDSlice2)     { UDSlice2[NULL_MOVE][hash]     = hash; }
+                //Process null move for sym moves
+                if      (coord_type == Coords::CornerPerm)   { SymUDRotate::CornerPerm[0][hash] = hash; }
+                else if (coord_type == Coords::EdgePerm2)    { SymUDRotate::EdgePerm2[0][hash]  = hash; }
+                else if (coord_type == Coords::UDSlice2)     { SymUDRotate::UDSlice2[0][hash]   = hash; }
 
                 uint64_t new_node = node;
                 uint64_t inserted_move = uint64_t(phase2 ? movesAfterG1[i] : all_moves[i]);
