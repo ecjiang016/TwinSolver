@@ -218,11 +218,11 @@ class Cube {
 
         auto convert_face_color = [&](CubeSide::Color side_color) {
             for (int i = 0; i < 64; i += 8) {
-                Color color = Color((sides[side_color] >> i) & 0xFF);
+                Color color = Color((sides[side_color] >> i) & 0xFFULL);
                 if (color == RED) { color = BLUE; }
-                if (color == GREEN) { color = RED; }
-                if (color == ORANGE) { color = GREEN; }
-                if (color == BLUE) { color = ORANGE; }
+                else if (color == GREEN) { color = RED; }
+                else if (color == ORANGE) { color = GREEN; }
+                else if (color == BLUE) { color = ORANGE; }
                 sides[side_color] &= ~(0xFFULL << i);
                 sides[side_color] |= uint64_t(color) << i;
             }
@@ -233,10 +233,15 @@ class Cube {
         convert_face_color(CubeSide::GREEN);
         convert_face_color(CubeSide::ORANGE);
 
-        sides[CubeSide::BLUE] = sides[CubeSide::RED];
-        sides[CubeSide::RED] = sides[CubeSide::GREEN];
-        sides[CubeSide::GREEN] = sides[CubeSide::ORANGE];
-        sides[CubeSide::ORANGE] = sides[CubeSide::BLUE]; 
+        uint64_t sides_blue = sides[CubeSide::BLUE];
+        uint64_t sides_red = sides[CubeSide::RED];
+        uint64_t sides_green = sides[CubeSide::GREEN];
+        uint64_t sides_orange = sides[CubeSide::ORANGE];
+
+        sides[CubeSide::BLUE] = sides_red;
+        sides[CubeSide::RED] = sides_green;
+        sides[CubeSide::GREEN] = sides_orange;
+        sides[CubeSide::ORANGE] = sides_blue;
     }
 
 	bool inG1();
@@ -283,10 +288,15 @@ inline void Cube::sym_rotate_UD<COUNTER_CLOCKWISE>() {
     convert_face_color(CubeSide::GREEN);
     convert_face_color(CubeSide::ORANGE);
 
-    sides[CubeSide::RED] = sides[CubeSide::BLUE];
-    sides[CubeSide::GREEN] = sides[CubeSide::RED];
-    sides[CubeSide::ORANGE] = sides[CubeSide::GREEN];
-    sides[CubeSide::BLUE] = sides[CubeSide::ORANGE]; 
+    uint64_t sides_blue = sides[CubeSide::BLUE];
+    uint64_t sides_red = sides[CubeSide::RED];
+    uint64_t sides_green = sides[CubeSide::GREEN];
+    uint64_t sides_orange = sides[CubeSide::ORANGE];
+
+    sides[CubeSide::RED] = sides_blue;
+    sides[CubeSide::GREEN] = sides_red;
+    sides[CubeSide::ORANGE] = sides_green;
+    sides[CubeSide::BLUE] = sides_orange; 
 
 }
 
@@ -312,10 +322,15 @@ inline void Cube::sym_rotate_UD<DOUBLE_TURN>() {
     convert_face_color(CubeSide::GREEN);
     convert_face_color(CubeSide::ORANGE);
 
-    sides[CubeSide::RED] = sides[CubeSide::ORANGE];
-    sides[CubeSide::GREEN] = sides[CubeSide::BLUE];
-    sides[CubeSide::ORANGE] = sides[CubeSide::RED];
-    sides[CubeSide::BLUE] = sides[CubeSide::GREEN]; 
+    uint64_t sides_blue = sides[CubeSide::BLUE];
+    uint64_t sides_red = sides[CubeSide::RED];
+    uint64_t sides_green = sides[CubeSide::GREEN];
+    uint64_t sides_orange = sides[CubeSide::ORANGE];
+
+    sides[CubeSide::RED] = sides_orange;
+    sides[CubeSide::GREEN] = sides_blue;
+    sides[CubeSide::ORANGE] = sides_red;
+    sides[CubeSide::BLUE] = sides_green;
 
 }
 
