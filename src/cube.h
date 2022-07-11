@@ -275,9 +275,9 @@ inline void Cube::sym_rotate_UD<COUNTER_CLOCKWISE>() {
         for (int i = 0; i < 64; i += 8) {
             Color color = Color((sides[side_color] >> i) & 0xFF);
             if (color == BLUE) { color = RED; }
-            if (color == RED) { color = GREEN; }
-            if (color == GREEN) { color = ORANGE; }
-            if (color == ORANGE) { color = BLUE; }
+            else if (color == RED) { color = GREEN; }
+            else if (color == GREEN) { color = ORANGE; }
+            else if (color == ORANGE) { color = BLUE; }
             sides[side_color] &= ~(0xFFULL << i);
             sides[side_color] |= uint64_t(color) << i;
         }
@@ -309,9 +309,9 @@ inline void Cube::sym_rotate_UD<DOUBLE_TURN>() {
         for (int i = 0; i < 64; i += 8) {
             Color color = Color((sides[side_color] >> i) & 0xFF);
             if (color == BLUE) { color = GREEN; }
-            if (color == RED) { color = ORANGE; }
-            if (color == GREEN) { color = BLUE; }
-            if (color == ORANGE) { color = RED; }
+            else if (color == RED) { color = ORANGE; }
+            else if (color == GREEN) { color = BLUE; }
+            else if (color == ORANGE) { color = RED; }
             sides[side_color] &= ~(0xFFULL << i);
             sides[side_color] |= uint64_t(color) << i;
         }
