@@ -114,7 +114,7 @@ namespace Coords {
             }
 
             void rotate(Move move);
-            inline uint32_t getCoord() { return (_EdgePerm2 * 40320) + _CornerPerm; }
+            uint32_t getCoord();
             inline bool isSolved() { return (this->_CornerPerm == 0) && (this->_EdgePerm2 == 0) && (this->_UDSlice2 == 0); }
 
             //Idk a better name. Needs to have the same name as the Phase1 coord cube one

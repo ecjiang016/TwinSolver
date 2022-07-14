@@ -20,3 +20,20 @@ void Coords::Phase2::Cube::rotate(Move move) {
     _EdgePerm2 = MoveTable::EdgePerm2[move][_EdgePerm2];
     _UDSlice2 = MoveTable::UDSlice2[move][_UDSlice2];
 }
+
+uint32_t Coords::Phase2::Cube::getCoord() {
+    uint32_t min_sym_coord = 0xFFFFFFFF;
+    for (int i = 0; i < 4; i++) {
+        //Calculate sym_coord which is a combination of the UDSlice2 coord and the EdgePerm2 coord
+        uint32_t sym_coord = (MoveTable::SymUDRotate::UDSlice2[i][this->_UDSlice2] * 40320) + MoveTable::SymUDRotate::EdgePerm2[i][this->_EdgePerm2];
+        //Get the minimum
+        if (sym_coord < min_sym_coord) {
+            min_sym_coord = sym_coord;
+        }
+        std::cout << sym_coord << " ";
+    }
+    std::cout << std::endl;
+    std::cout << min_sym_coord << "    " << ((min_sym_coord * 40320) + _CornerPerm) << std::endl;
+
+    return (min_sym_coord * 40320) + _CornerPerm;
+}
