@@ -14,6 +14,11 @@ namespace MoveTable {
     extern uint16_t EdgePerm2[23][40320];   
     extern uint8_t  UDSlice2[23][24]; 
 
+    namespace UDRotate {
+        extern uint16_t EdgePerm2[4][40320];
+        extern uint8_t  UDSlice2[4][24];
+    }
+
     void initalizeTables();
 
 }
