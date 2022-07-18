@@ -132,7 +132,7 @@ namespace MoveTable {
                             sym_cube.rotate(move);
                             moves_in_node++;
                         }
-                        sym_cube.rotate(movesAfterG1[i]); //Only gets called for phase 2 stuff anyway
+                        sym_cube.rotate(Sym::UD_Rotation(MoveType(j), movesAfterG1[i])); //Only gets called for phase 2 stuff anyway
                         if      (coord_type == Coords::EdgePerm2) { UDRotate::EdgePerm2[j][hash] = sym_cube.getEdgePerm2(); }
                         else if (coord_type == Coords::UDSlice2)  { UDRotate::UDSlice2[j][hash]  = sym_cube.getUDSlice2();  }
                     }
