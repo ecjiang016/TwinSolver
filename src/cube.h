@@ -204,7 +204,7 @@ inline void insert(uint64_t &side, uint64_t inserted_side, uint64_t mask) {
     side |= inserted_side & mask; // Toggle the bits to insert
 }
 
-enum MoveType { CLOCKWISE, COUNTER_CLOCKWISE, DOUBLE_TURN };
+enum MoveType { CLOCKWISE = 1, COUNTER_CLOCKWISE, DOUBLE_TURN };
 
 template <MoveType type = CLOCKWISE>
 inline void roll(uint64_t &side) {
