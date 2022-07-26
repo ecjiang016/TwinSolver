@@ -120,6 +120,8 @@ inline uint64_t makeSide(Color color0, Color color1, Color color2, Color color3,
             (uint64_t(color4) << 24) | (uint64_t(color5) << 16) | (uint64_t(color6) <<  8) | uint64_t(color7));
 }
 
+std::vector<Move> makeScramble(unsigned int length);
+
 // Circular bit shifts.
 // Speed is pretty much negligible for these so it's better to define them manually instead of relying on <bit>
 // Makes it so that I don't have to worry about the compiler or the C++ version

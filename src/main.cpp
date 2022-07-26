@@ -69,7 +69,8 @@ Move str_to_move(std::string move_str) {
 int main(int argc, char * argv[]) {
     std::vector<Move> scramble;
     if (argc == 1) {
-        std::cout << "No scramble provided" << std::endl;
+        scramble = makeScramble(40);
+        std::cout << "No scramble provided\nAuto generating scramble\nScramble: " << scramble << std::endl;
     } else if (argc == 2) {
         std::string scramble_str = argv[1];
         std::cout << "\nScramble: " << scramble_str << std::endl;
