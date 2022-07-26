@@ -1,4 +1,5 @@
 #include "cube.h"
+#include <random>
 #include <stdexcept>
 
 bool Cube::inG1() {
@@ -505,7 +506,7 @@ std::ostream &operator<<(std::ostream &out, const std::vector<Move> moves) {
     for (Move move : moves) {
         switch (move) {
             case D:
-                str += "D";
+                str += "D ";
                 break;
             case F:
                 str += "F ";
@@ -1038,4 +1039,22 @@ uint8_t Cube::getUDSlice2() {
 
     return edge_code;
 
+}
+
+std::vector<Move> makeScramble(unsigned int length) {
+    std::vector<Move> scramble;
+    scramble.push_back(NULL_MOVE); //Placeholder
+    while (length > 0) {
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> dist18(0, 17);
+
+        Move move = all_moves[dist18(rng)];
+        if ((move & 0b00111) != (scramble.back() & 0b00111)) {
+            scramble.push_back(move);
+            length--;
+        }
+    }
+    scramble.erase(scramble.begin()); //Delete placeholder
+    return scramble;
 }
