@@ -21,14 +21,14 @@ int main() {
     for (Move move : moves) {
         cube.rotate(Sym::UD_Rotation(COUNTER_CLOCKWISE, move));
     }
-    std::cout << "Clockwise:\n\n";
+    std::cout << "COUNTER_CLOCKWISE:\n\n";
     cube.print();
 
     cube = Cube();
     for (Move move : moves) {
         cube.rotate(Sym::UD_Rotation(DOUBLE_TURN, move));
     }
-    std::cout << "Clockwise:\n\n";
+    std::cout << "DOUBLE_TURN:\n\n";
     cube.print();
 
 }
