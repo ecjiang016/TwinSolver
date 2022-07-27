@@ -7,7 +7,7 @@ int main() {
     Move scramble[] = {U, Bp, Fp, Dp, Bp, F, Dp, L, D2, R, Fp, D2, U2, Lp, Bp, D2, U, B, F2, D, Rp, U, F, U2, F, U, L, R, U, Lp};
 
     std::cout << "Initalizing move tables..." << std::endl;
-    MoveTable::initalizeTables();
+    MoveTable::initializeTables();
     
     Cube cube = Cube();
     for (Move move: scramble) { cube.rotate(move); }

@@ -5,7 +5,7 @@
 #include <assert.h>
 
 int main() {
-    MoveTable::initalizeTables();
+    MoveTable::initializeTables();
     Cube cube;
     Coords::Phase1::Cube coord_cube;
 

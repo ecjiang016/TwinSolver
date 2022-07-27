@@ -19,6 +19,6 @@ namespace MoveTable {
         extern uint8_t  UDSlice2[4][24];
     }
 
-    void initalizeTables();
+    void initializeTables();
 
 }

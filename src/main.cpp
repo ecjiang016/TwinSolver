@@ -83,7 +83,7 @@ int main(int argc, char * argv[]) {
     }
 
     std::cout << "Initalizing move tables..." << std::endl;
-    MoveTable::initalizeTables();
+    MoveTable::initializeTables();
     
     Cube cube = Cube();
     for (Move move : scramble) {

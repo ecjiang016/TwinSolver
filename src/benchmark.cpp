@@ -69,7 +69,7 @@ Move str_to_move(std::string move_str) {
 //Ex: ./main.exe "B F2 U' L F' L2 D' R2 B D2 B' F L2 U2 R F' R2 D2 U2 R2 D L' U2 B' U' B' F R' D2 B"
 int main() {
     std::cout << "Initalizing move tables..." << std::endl;
-    MoveTable::initalizeTables();
+    MoveTable::initializeTables();
 
     TwoPhaseSolver solver("./databases/Phase1.patterns", "./databases/Phase2.patterns");
     Cube cube;

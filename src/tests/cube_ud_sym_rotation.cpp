@@ -36,7 +36,7 @@ int main() {
     cube.print();
 
     //Check UD Rotate move tables
-    MoveTable::initalizeTables();
+    MoveTable::initializeTables();
     for (int j = 0; j < 10000; j++) {
         auto coord_cube = Coords::Phase2::Cube();
 
