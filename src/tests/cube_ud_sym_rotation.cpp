@@ -1,5 +1,9 @@
 #include "cube.h"
 #include "sym.h"
+#include "moves.h"
+#include "coords.h"
+#include <assert.h>
+#include <random>
 
 int main() {
     Cube cube;
@@ -30,5 +34,31 @@ int main() {
     }
     std::cout << "DOUBLE_TURN:\n\n";
     cube.print();
+
+    //Check UD Rotate move tables
+    for (int j = 0; j < 1; j++) {
+        auto coord_cube = Coords::Phase2::Cube();
+
+        std::vector<Move> scramble;
+        for (int i = 0; i < 40; i++) {
+            std::random_device dev;
+            std::mt19937 rng(dev());
+            std::uniform_int_distribution<std::mt19937::result_type> dist10(0, 9);
+
+            Move move = movesAfterG1[dist10(rng)];
+            scramble.push_back(move);
+        }
+
+        for (Move move : scramble) { coord_cube.rotate(move); }
+        MoveTable::initalizeTables();
+        
+        for (int i = 1; i <= 3; i++) {
+            auto sym_coord_cube = Coords::Phase2::Cube();
+            for (Move move : scramble) { sym_coord_cube.rotate(Sym::UD_Rotation(MoveType(i), move)); }
+            std::cout << i << "\n";
+            assert(MoveTable::UDRotate::EdgePerm2[i][coord_cube.getEdgePerm2()] == sym_coord_cube.getEdgePerm2());
+            assert(MoveTable::UDRotate::UDSlice2[i][coord_cube.getUDSlice2()] == sym_coord_cube.getUDSlice2());
+        }
+    }
 
 }
