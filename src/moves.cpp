@@ -121,16 +121,14 @@ namespace MoveTable {
                 }
 
                 //Process moves for sym move tables
-                if (coord_type == Coords::EdgePerm2 || coord_type == Coords::UDSlice2) {
+                if (phase2) {
                     for (int j = 1; j <= 3; j++) {
                         Cube sym_cube = Cube();
-                        uint8_t moves_in_node = 0;
                         uint64_t temp_node = node;
                         while (temp_node) {
                             Move move = Sym::UD_Rotation(MoveType(j), Move(temp_node & 0x1F));
                             temp_node = temp_node >> 5;
                             sym_cube.rotate(move);
-                            moves_in_node++;
                         }
                         sym_cube.rotate(Sym::UD_Rotation(MoveType(j), movesAfterG1[i])); //Only gets called for phase 2 stuff anyway
                         if      (coord_type == Coords::EdgePerm2) { UDRotate::EdgePerm2[j][hash] = sym_cube.getEdgePerm2(); }
