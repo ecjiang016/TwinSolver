@@ -4,7 +4,6 @@
 #include "patterns.h"
 
 const uint8_t FOUND = 0xFF; //Big enough that it shouldn't ever be reached
-enum Phase { PHASE1, PHASE2 };
 
 //IDA* search is based on https://en.wikipedia.org/wiki/Iterative_deepening_A*?scrlybrkr=b5bb56ed
 
