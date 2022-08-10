@@ -32,5 +32,5 @@ uint32_t Coords::Phase2::Cube::getCoord() {
         }
     }
 
-    return (min_sym_coord * 40320) + _CornerPerm;
+    return (min_sym_coord * 40320) + this->_CornerPerm;
 }
