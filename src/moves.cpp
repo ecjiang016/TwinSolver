@@ -114,7 +114,7 @@ namespace MoveTable {
         }
     }
 
-    void initalizeTables() {
+    void initializeTables() {
         // Uses a breadth-first search to find all the unique cubes for that specific coord
         // and add the next coords to the move table
         generateTable<Coords::CornerOrient>();
