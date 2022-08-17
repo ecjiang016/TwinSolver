@@ -75,6 +75,7 @@ int main() {
     Cube cube;
     long long total_time = 0;
     int total_scrambles = 0;
+    int total_solve_length = 0;
     std::ifstream file("./benchmark_cubes.txt");
     std::string single_scramble; 
 
@@ -89,9 +90,10 @@ int main() {
         std::vector<Move> solution = solver.solve(cube);
         auto end_time = std::chrono::high_resolution_clock::now();
         total_time += std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        total_solve_length += solution.size();
         total_scrambles++;
     }
     
-    std::cout << "Finished benchmark. " << total_time / total_scrambles << " ms average." << std::endl;
+    std::cout << "Finished benchmark. " << total_time / total_scrambles << " ms average. " << (float)total_solve_length / (float)total_scrambles << " moves average." << std::endl;
     
 }
