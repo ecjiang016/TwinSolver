@@ -1,6 +1,8 @@
 # TwinSolver
 A two phase Rubik's Cube solving algorithm based on [Herbert Kociemba's 2 phase algorithm](http://kociemba.org/cube.htm).
 
+Current performance: 23.06 move solution in 40 milliseconds on average.
+
 Still a work in progress - Expect faster solve times and more solving options in the near future. 
 
 
