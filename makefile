@@ -11,10 +11,10 @@ all:tool
 tool: $(OBJS)
 	$(CXX) $(CPPFLAGS) $(OBJS) src/main.cpp -o TwinSolver.exe
 
-build: $(OBJS)
+build: $(OBJS) src/database_build.cpp
 	$(CXX) $(CPPFLAGS) $(OBJS) src/database_build.cpp -o build.exe
 
-benchmark: $(OBJS)
+benchmark: $(OBJS) src/benchmark.cpp
 	$(CXX) $(CPPFLAGS) $(OBJS) src/benchmark.cpp -o benchmark.exe
 
 clean:
