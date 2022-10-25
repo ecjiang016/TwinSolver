@@ -71,12 +71,12 @@ int main() {
     std::cout << "Initalizing move tables..." << std::endl;
     MoveTable::initializeTables();
 
-    TwoPhaseSolver solver("./databases/Phase1.patterns", "./databases/Phase2.patterns");
+    TwoPhaseSolver solver("./src/databases/Phase1.patterns", "./src/databases/Phase2.patterns");
     Cube cube;
     long long total_time = 0;
     int total_scrambles = 0;
     int total_solve_length = 0;
-    std::ifstream file("./benchmark_cubes.txt");
+    std::ifstream file("./src/benchmark_cubes.txt");
     std::string single_scramble; 
 
     std::cout << "Starting benchmark..." << std::endl;
