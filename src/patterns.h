@@ -1,7 +1,6 @@
 #pragma once
 #include "cube.h"
 #include "coords.h"
-#include <assert.h>
 #include <vector>
 #include <fstream>
 #include <stdint.h>
@@ -42,8 +41,10 @@ class Patterns {
     Patterns(std::string file_name) {
         std::ifstream file;
         file.open(file_name, std::ios::binary);
-        if (!file.is_open()) { std::cout << "Couldn't open file '" << file_name << "'" << std::endl; }
-		assert(file.is_open());
+        if (!file.is_open()) {
+            std::cout << "Couldn't open file \"" << file_name << "\"\n";
+			exit(1);
+        }
         file.seekg(0, std::ios::end);
         size_t file_size = file.tellg();
         file.seekg(0, std::ios::beg);
