@@ -19,3 +19,5 @@ benchmark: $(OBJS)
 
 clean:
 	$(RM) $(OBJS)
+	$(RM) *.exe
+	$(RM) *.stackdump
