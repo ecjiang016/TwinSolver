@@ -79,6 +79,11 @@ int main() {
     std::ifstream file("./src/benchmark_cubes.txt");
     std::string single_scramble; 
 
+    if(!file.is_open()) {
+        std::cout << "Couldn't open scrambles (benchmark_cubes.txt)\n";
+        exit(1);
+    }
+
     std::cout << "Starting benchmark..." << std::endl;
     while (std::getline(file, single_scramble)) {
         cube = Cube();
