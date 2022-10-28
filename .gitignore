@@ -1,6 +1,7 @@
 .vscode
 .vs
 *.exe*
+*.o
 *.out
 massif.out*
 *.patterns

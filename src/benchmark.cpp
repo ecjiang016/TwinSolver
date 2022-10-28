@@ -4,6 +4,7 @@
 #include <vector>
 #include <iterator>
 #include <chrono>
+#include <assert.h>
 #include "solver.h"
 
 //These two functions for splitting strings is from https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
@@ -71,12 +72,18 @@ int main() {
     std::cout << "Initalizing move tables..." << std::endl;
     MoveTable::initializeTables();
 
-    TwoPhaseSolver solver("./databases/Phase1.patterns", "./databases/Phase2.patterns");
+    TwoPhaseSolver solver("./src/databases/Phase1.patterns", "./src/databases/Phase2.patterns");
     Cube cube;
     long long total_time = 0;
     int total_scrambles = 0;
-    std::ifstream file("./benchmark_cubes.txt");
+    int total_solve_length = 0;
+    std::ifstream file("./src/benchmark_cubes.txt");
     std::string single_scramble; 
+
+    if(!file.is_open()) {
+        std::cout << "Couldn't open scrambles (benchmark_cubes.txt)\n";
+        exit(1);
+    }
 
     std::cout << "Starting benchmark..." << std::endl;
     while (std::getline(file, single_scramble)) {
@@ -89,9 +96,10 @@ int main() {
         std::vector<Move> solution = solver.solve(cube);
         auto end_time = std::chrono::high_resolution_clock::now();
         total_time += std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        total_solve_length += solution.size();
         total_scrambles++;
     }
     
-    std::cout << "Finished benchmark. " << total_time / total_scrambles << " ms average." << std::endl;
+    std::cout << "Finished benchmark. " << total_time / total_scrambles << " ms average. " << (float)total_solve_length / (float)total_scrambles << " moves average." << std::endl;
     
 }

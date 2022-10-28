@@ -73,7 +73,7 @@ void buildDatabase(std::string save_file_name) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
 
     std::ofstream file;
-    file.open("./databases/" + save_file_name, std::ios_base::binary);
+    file.open("./src/databases/" + save_file_name, std::ios_base::binary);
     assert(file.is_open());
     assert(((PHASE1_PATTERNS_SIZE + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
