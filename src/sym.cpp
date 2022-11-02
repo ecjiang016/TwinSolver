@@ -76,3 +76,17 @@ Move Sym::UD_Rotation(MoveType move_type, Move move) {
     
     return Move((move & 0b11000) | rotated_move);
 }
+
+uint64_t Sym::getSymCoord(Coords::Phase2::Cube &cube) {
+    uint32_t min_sym_coord = 0xFFFFFFFF;
+    for (int i = 0; i < 4; i++) {
+        //Calculate sym_coord which is a combination of the UDSlice2 coord and the EdgePerm2 coord
+        uint32_t sym_coord = (MoveTable::UDRotate::UDSlice2[i][cube.getUDSlice2()] * 40320) + MoveTable::UDRotate::EdgePerm2[i][cube.getEdgePerm2()];
+        //Get the minimum
+        if (sym_coord < min_sym_coord) {
+            min_sym_coord = sym_coord;
+        }
+    }
+
+    return (min_sym_coord * 40320) + cube.getCornerPerm();
+}
