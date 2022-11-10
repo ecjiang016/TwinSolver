@@ -114,7 +114,11 @@ namespace Coords {
             }
 
             void rotate(Move move);
-            uint32_t getCoord();
+
+            inline uint64_t getCoord() const {
+                return (uint64_t(this->_UDSlice2) * 40320ULL * 40320ULL) + (uint64_t(this->_EdgePerm2) * 40320ULL) + uint64_t(this->_CornerPerm);
+            }
+
             inline bool isSolved() { return (this->_CornerPerm == 0) && (this->_EdgePerm2 == 0) && (this->_UDSlice2 == 0); }
 
             //Idk a better name. Needs to have the same name as the Phase1 coord cube one
@@ -123,6 +127,8 @@ namespace Coords {
             inline uint16_t getCornerPerm() const { return _CornerPerm; }
             inline uint16_t getEdgePerm2()  const { return _EdgePerm2;  }
             inline uint16_t getUDSlice2()   const { return _UDSlice2;   }
+
+            uint64_t getSymCoord() const;
 
         };
     }

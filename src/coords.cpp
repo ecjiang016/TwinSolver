@@ -21,7 +21,7 @@ void Coords::Phase2::Cube::rotate(Move move) {
     _UDSlice2 = MoveTable::UDSlice2[move][_UDSlice2];
 }
 
-uint32_t Coords::Phase2::Cube::getCoord() {
+uint64_t Coords::Phase2::Cube::getSymCoord() const {
     uint32_t min_sym_coord = 0xFFFFFFFF;
     for (int i = 0; i < 4; i++) {
         //Calculate sym_coord which is a combination of the UDSlice2 coord and the EdgePerm2 coord

@@ -73,7 +73,7 @@ void buildDatabase(std::string save_file_name) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
 
     std::ofstream file;
-    file.open("./src/databases/" + save_file_name, std::ios_base::binary);
+    file.open(save_file_name, std::ios_base::binary);
     assert(file.is_open());
     assert(((PHASE1_PATTERNS_SIZE + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
@@ -90,12 +90,12 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
     std::vector<Nibbles> pattern_depths((PHASE2_PATTERNS_SIZE + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
 
     //Using breadth-first search with coord cube
-    HashCache<PHASE2_PATTERNS_SIZE, uint32_t> hash_cache;
+    HashCache<PHASE2_PATTERNS_SIZE, uint64_t> hash_cache;
     std::deque<Coords::Phase2::Cube> queue; //Storing max 11 moves (5 bit representation each)
     uint64_t next_layer_nodes = 0; //Keeps track of visited nodes of the next depth
     uint8_t depth = 1;
-    unsigned int unique_nodes = 1;
-    uint32_t hash;
+    uint64_t unique_nodes = 1;
+    uint64_t hash;
     
     //Process the first node
     Coords::Phase2::Cube init_cube = Coords::Phase2::Cube();
@@ -116,9 +116,11 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
             hash = new_cube.getCoord();
             if (hash_cache.getBit(hash)) { continue; } //Prune if visited before
 
-            //Add hash to cache and insert it in the pattern database array
+            //Add hash to cache
             hash_cache.insertHash(hash);
-            hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
+            //Use sym coord for the database
+            uint64_t sym_hash = new_cube.getSymCoord();
+            sym_hash % 2 == 0 ? pattern_depths[sym_hash/2].insertLow(depth) : pattern_depths[sym_hash/2].insertHigh(depth);
 
             queue.push_back(new_cube);
             next_layer_nodes++;
@@ -141,7 +143,7 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
 
     std::ofstream file;
-    file.open("./databases/" + save_file_name, std::ios_base::binary);
+    file.open(save_file_name, std::ios_base::binary);
     assert(file.is_open());
     assert(((PHASE2_PATTERNS_SIZE + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
@@ -153,6 +155,6 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initializeTables();
-    buildDatabase<PHASE1>("Phase1.patterns");
-    buildDatabase<PHASE2>("Phase2.patterns");
+    buildDatabase<PHASE1>("./src/databases/Phase1.patterns");
+    buildDatabase<PHASE2>("./src/databases/Phase2.patterns");
 }
