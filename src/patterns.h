@@ -8,7 +8,7 @@
 enum Phase { PHASE1, PHASE2 };
 
 const size_t PHASE1_PATTERNS_SIZE = 2217093120;
-const size_t PHASE2_PATTERNS_SIZE = 19508428800;
+const size_t PHASE2_PATTERNS_SIZE = 39016857600;
 
 struct Nibbles {
   private:
