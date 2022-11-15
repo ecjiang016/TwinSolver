@@ -8,18 +8,25 @@
 template<size_t size, typename hash_type>
 struct HashCache {
   private:
-    std::vector<Bits> hashes;
+    Bits* cache;
   public:
-    HashCache() : hashes((size + 3) / 4) {}
-    inline void insertHash(hash_type hash) { hashes[hash / 4].toggleBit(hash % 4); }
-    inline bool getBit(hash_type hash) { return hashes[hash / 4].getBit(hash % 4); }
+    HashCache() {
+        cache = new Bits[(size + 7) / 8];
+
+        for (size_t i = 0; i < ((size + 7) / 8); i++)
+            cache[i] = Bits();
+    }
+
+    inline void insertHash(hash_type hash) { cache[hash / 8].toggleBit(hash % 8); }
+    inline bool getBit(hash_type hash) { return cache[hash / 8].getBit(hash % 8); }
+
 };
 
 template<Phase P = PHASE1>
 void buildDatabase(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     auto start_time = std::chrono::high_resolution_clock::now();
-    std::vector<Nibbles> pattern_depths((PHASE1_PATTERNS_SIZE + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
+    Depths* pattern_depths = new Depths[(PHASE1_PATTERNS_SIZE + 3) / 4];
 
     //Using breadth-first search with coord cube
     HashCache<PHASE1_PATTERNS_SIZE, uint32_t> hash_cache;
@@ -33,7 +40,7 @@ void buildDatabase(std::string save_file_name) {
     Coords::Phase1::Cube init_cube = Coords::Phase1::Cube();
     hash = init_cube.getCoord();
     hash_cache.insertHash(hash);
-    hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
+    pattern_depths[hash/4].insert(depth % 3, hash % 4);
     queue.push_back(init_cube);
 
     while (queue.size() != 0) {
@@ -50,7 +57,7 @@ void buildDatabase(std::string save_file_name) {
 
             //Add hash to cache and insert it in the pattern database array
             hash_cache.insertHash(hash);
-            hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
+            pattern_depths[hash/4].insert(depth % 3, hash % 4);
 
             queue.push_back(new_cube);
             next_layer_nodes++;
@@ -75,9 +82,8 @@ void buildDatabase(std::string save_file_name) {
     std::ofstream file;
     file.open(save_file_name, std::ios_base::binary);
     assert(file.is_open());
-    assert(((PHASE1_PATTERNS_SIZE + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
-    file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
+    file.write(reinterpret_cast<const char *>(pattern_depths), (PHASE1_PATTERNS_SIZE + 3) / 4);
     file.close();
     std::cout << save_file_name << " has been built ";
     std::cout << "(" << minutes << " minutes, " << seconds << " seconds)\n" << std::endl;
@@ -87,7 +93,7 @@ template<>
 void buildDatabase<PHASE2>(std::string save_file_name) {
     std::cout << "Building " << save_file_name << "...\n";
     auto start_time = std::chrono::high_resolution_clock::now();
-    std::vector<Nibbles> pattern_depths((PHASE2_PATTERNS_SIZE + 1) / 2); //Cut size in half as 2 nibbles are stored together in 1 array element
+    Depths* pattern_depths = new Depths[(PHASE2_PATTERNS_SIZE + 3) / 4];
 
     //Using breadth-first search with coord cube
     HashCache<PHASE2_PATTERNS_SIZE, uint64_t> hash_cache;
@@ -101,7 +107,7 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
     Coords::Phase2::Cube init_cube = Coords::Phase2::Cube();
     hash = init_cube.getCoord();
     hash_cache.insertHash(hash);
-    hash % 2 == 0 ? pattern_depths[hash/2].insertLow(depth) : pattern_depths[hash/2].insertHigh(depth);
+    pattern_depths[init_cube.getSymCoord() / 4].insert(depth % 3, init_cube.getSymCoord() % 4);
     queue.push_back(init_cube);
 
     while (queue.size() != 0) {
@@ -120,7 +126,7 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
             hash_cache.insertHash(hash);
             //Use sym coord for the database
             uint64_t sym_hash = new_cube.getSymCoord();
-            sym_hash % 2 == 0 ? pattern_depths[sym_hash/2].insertLow(depth) : pattern_depths[sym_hash/2].insertHigh(depth);
+            pattern_depths[sym_hash/4].insert(depth % 3, sym_hash % 4);
 
             queue.push_back(new_cube);
             next_layer_nodes++;
@@ -128,7 +134,7 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
         }
 
         if (queue.size() == next_layer_nodes) {
-            if (queue.size() == 0) { break; }
+            if (queue.size() == 0) break;
             
             unique_nodes += next_layer_nodes;
             std::cout << "Finished depth " << int(depth) << ", " << unique_nodes << " unique nodes found" << std::endl;
@@ -142,12 +148,24 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
     auto minutes = std::chrono::duration_cast<std::chrono::minutes>(end_time - start_time).count();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
 
+    //Figure out the max index
+    //Since there are sym reductions the stored size should be less than the total size
+    size_t max_idx = (PHASE2_PATTERNS_SIZE + 3) / 4;
+    while (max_idx > 0) {
+        max_idx--;
+        if (pattern_depths[max_idx] != Depths()) {
+            max_idx++;
+            break;
+        }
+    }
+
+    std::cout << "Sym reduced to " << (max_idx * 4) << " nodes stored\n";
+
     std::ofstream file;
     file.open(save_file_name, std::ios_base::binary);
     assert(file.is_open());
-    assert(((PHASE2_PATTERNS_SIZE + 1) / 2) == pattern_depths.size());
     std::cout << "Writing depths..." << std::endl;
-    file.write(reinterpret_cast<const char *>(pattern_depths.data()), pattern_depths.size());
+    file.write(reinterpret_cast<const char *>(pattern_depths), max_idx);
     file.close();
     std::cout << save_file_name << " has been built ";
     std::cout << "(" << minutes << " minutes, " << seconds << " seconds)\n" << std::endl;
@@ -155,6 +173,6 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initializeTables();
-    buildDatabase<PHASE1>("./src/databases/Phase1.patterns");
+    //buildDatabase<PHASE1>("./src/databases/Phase1.patterns");
     buildDatabase<PHASE2>("./src/databases/Phase2.patterns");
 }
