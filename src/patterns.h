@@ -39,7 +39,7 @@ struct Bits {
     uint8_t byte;
   public:
     Bits() : byte(0) {}
-	
+
     inline void toggleBit(uint8_t bit_number) {
 		this->byte |= 1 << bit_number;
 	}
@@ -77,8 +77,9 @@ class Patterns {
         file.read(reinterpret_cast<char *>(depths), file_size);
     }
 
-    inline uint8_t getDepth(CUBE &cube) {
-        uint32_t cube_hash = cube.getCoord();
-        return depths[cube_hash / 4].get(cube_hash % 4);
+	template<typename T>
+    inline uint8_t getDepth(T hash) {
+        return depths[hash / 4].get(hash % 4);
     }
+	
 };
