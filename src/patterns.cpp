@@ -173,6 +173,6 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
 
 void buildAllDatabases() {
     MoveTable::initializeTables();
-    //buildDatabase<PHASE1>("./src/databases/Phase1.patterns");
+    buildDatabase<PHASE1>("./src/databases/Phase1.patterns");
     buildDatabase<PHASE2>("./src/databases/Phase2.patterns");
 }
