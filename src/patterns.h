@@ -8,25 +8,46 @@ enum Phase { PHASE1, PHASE2 };
 
 constexpr size_t PHASE1_PATTERNS_SIZE = 2217093120;
 constexpr size_t PHASE2_PATTERNS_SIZE = 39016857600;
+constexpr size_t PHASE2_REDUCED_SIZE  = 4294967296;
 
 struct Depths {
   private:
     uint8_t byte;
   public:
 	Depths() : byte(0xFF) {}
-    inline void insert(uint8_t depth, uint8_t slot) { this->byte &= depth << (2 * slot); }
-    inline uint8_t get(uint8_t slot) const { return (this->byte >> (2 * slot)) & uint8_t(0b11); }
-	bool operator==(Depths depths) const { return byte == depths.byte; }
-	bool operator!=(Depths depths) const { return byte != depths.byte; }
+
+    inline void insert(uint8_t depth, uint8_t slot) {
+		this->byte &= depth << (2 * slot);
+	}
+
+    inline uint8_t get(uint8_t slot) const {
+		return (this->byte >> (2 * slot)) & uint8_t(0b11);
+	}
+
+	bool operator==(Depths depths) const {
+		return byte == depths.byte;
+	}
+
+	bool operator!=(Depths depths) const {
+		return byte != depths.byte;
+	}
+
 };
 
 struct Bits {
   private:
     uint8_t byte;
   public:
-    Bits() { byte = uint8_t(0); }
-    inline void toggleBit(uint8_t bit_number) { this->byte |= 1 << bit_number; }
-    inline bool getBit(uint8_t bit_number) { return bool((this->byte >> bit_number) & 1); }
+    Bits() : byte(0) {}
+	
+    inline void toggleBit(uint8_t bit_number) {
+		this->byte |= 1 << bit_number;
+	}
+
+    inline bool getBit(uint8_t bit_number) {
+		return bool((this->byte >> bit_number) & 1);
+	}
+
 };
 
 inline int factorial(int n) {
