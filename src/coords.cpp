@@ -22,15 +22,15 @@ void Coords::Phase2::Cube::rotate(Move move) {
 }
 
 uint64_t Coords::Phase2::Cube::getSymCoord() const {
-    uint32_t min_sym_coord = 0xFFFFFFFF;
+    uint64_t min_sym_coord = ~uint64_t(0);
     for (int i = 0; i < 4; i++) {
         //Calculate sym_coord which is a combination of the UDSlice2 coord and the EdgePerm2 coord
-        uint32_t sym_coord = (MoveTable::UDRotate::UDSlice2[i][this->_UDSlice2] * 40320) + MoveTable::UDRotate::EdgePerm2[i][this->_EdgePerm2];
+        uint64_t sym_coord = (MoveTable::UDRotate::UDSlice2[i][this->_UDSlice2] * 40320ULL) + MoveTable::UDRotate::EdgePerm2[i][this->_EdgePerm2];
         //Get the minimum
         if (sym_coord < min_sym_coord) {
             min_sym_coord = sym_coord;
         }
     }
 
-    return (min_sym_coord * 40320) + this->_CornerPerm;
+    return (min_sym_coord * 40320ULL) + this->_CornerPerm;
 }
