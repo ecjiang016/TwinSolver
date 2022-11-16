@@ -1,7 +1,7 @@
 C=gcc
 CXX=g++
 RM = rm -f
-CPPFLAGS=-O3 -std=c++14
+CPPFLAGS=-O3 -std=c++17
 
 SRCS=$(patsubst %,src/%,coords.cpp cube.cpp moves.cpp patterns.cpp solver.cpp sym.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
