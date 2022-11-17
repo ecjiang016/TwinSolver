@@ -80,7 +80,7 @@ void buildDatabase(std::string save_file_name) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count() % 60;
 
     std::ofstream file;
-    file.open(save_file_name, std::ios_base::binary);
+    file.open(save_file_name, std::ios::binary);
     assert(file.is_open());
     std::cout << "Writing depths..." << std::endl;
     file.write(reinterpret_cast<const char *>(pattern_depths), (PHASE1_PATTERNS_SIZE + 3) / 4);
@@ -162,7 +162,7 @@ void buildDatabase<PHASE2>(std::string save_file_name) {
     std::cout << "Sym reduced to " << (max_idx * 4) << " nodes stored\n";
 
     std::ofstream file;
-    file.open(save_file_name, std::ios_base::binary);
+    file.open(save_file_name, std::ios::binary);
     assert(file.is_open());
     std::cout << "Writing depths..." << std::endl;
     file.write(reinterpret_cast<const char *>(pattern_depths), max_idx);
