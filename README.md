@@ -18,26 +18,25 @@ Still a work in progress - Expect faster solve times and more solving options in
 # Command Line Usage
 ### To compile with g++: <br>
 ```
-$ cd src
-$ g++ -O3 -std=c++14 main.cpp cube.cpp moves.cpp coords.cpp patterns.cpp solver.cpp -o main.exe
+$ make
 ```
 
 ### Generating pattern files: <br>
 (With `src` as the working directory)
 ```
-$ g++ -O3 -std=c++14 database_build.cpp cube.cpp moves.cpp coords.cpp patterns.cpp -o database_build.exe
-$ ./database_build.exe
+$ make build
+$ ./build.exe
 ```
 Note that the computation does take a while (A little less than 20 minutes on my computer) and the files do take up a bit of storage (~1.78 GB).
 
 ### Running the solver
 (With `src` as the working directory)
 ```
-$ ./main.exe "scramble in standard notation"
+$ ./TwinSolver.exe "<scramble in standard notation>"
 ```
 Example:
 ```
-$ ./main.exe "U D' L2 B R F' U2 R2 D"
+$ ./TwinSolver.exe "U D' L2 B R F' U2 R2 D"
 ```
 
 
@@ -133,8 +132,11 @@ int main () {
     }
     cube.print();
 
+    // Load pattern files into solver
+    TwoPhaseSolver solver = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns");
+
     // Search for solution
-    std::vector<Move> solution = TwoPhaseSolver("./databases/Phase1.patterns", "./databases/Phase2.patterns").solve(cube);
+    std::vector<Move> solution = solver.solve(cube);
     
     // Print solution
     std::cout << "Solution: " << solution << std::endl;
