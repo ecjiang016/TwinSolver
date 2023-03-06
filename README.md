@@ -42,7 +42,7 @@ $ ./TwinSolver.exe "U D' L2 B R F' U2 R2 D"
 
 # General Usage
 ### Requirements
-The solver requires two files, `"Phase1.patterns" and "Phase2.patterns"` which contain precomputed data that the solver uses.
+The solver requires two files, `Phase1.patterns` and `Phase2.patterns` which contain precomputed data that the solver uses.
 
 Those files can be created by running `database_build.cpp` which will generate the files and put them in a database folder. <br>
 Note that the computation does take a while (A little less than 20 minutes on my computer) and the files do take up a bit of storage (~1.78 GB).
