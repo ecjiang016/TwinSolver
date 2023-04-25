@@ -108,16 +108,18 @@ const uint8_t WHITE_YELLOW = WHITE | YELLOW;
 const uint8_t BLUE_GREEN = BLUE | GREEN;
 const uint8_t RED_ORANGE = RED | ORANGE;
 
-constexpr uint64_t concatenate(Color color0, Color color1, Color color2, Color color3,
-                               Color color4, Color color5, Color color6, Color color7) {
-    return ((uint64_t(color0) << 56) | (uint64_t(color1) << 48) | (uint64_t(color2) << 40) | (uint64_t(color3) << 32) |
-            (uint64_t(color4) << 24) | (uint64_t(color5) << 16) | (uint64_t(color6) <<  8) | uint64_t(color7));
-}
-
 inline uint64_t makeSide(Color color0, Color color1, Color color2, Color color3,
                          Color color4, Color color5, Color color6, Color color7) {
-    return ((uint64_t(color0) << 56) | (uint64_t(color1) << 48) | (uint64_t(color2) << 40) | (uint64_t(color3) << 32) |
-            (uint64_t(color4) << 24) | (uint64_t(color5) << 16) | (uint64_t(color6) <<  8) | uint64_t(color7));
+    return ((uint64_t(color7) << 56) | (uint64_t(color6) << 48) | (uint64_t(color5) << 40) | (uint64_t(color4) << 32) |
+            (uint64_t(color3) << 24) | (uint64_t(color2) << 16) | (uint64_t(color1) <<  8) | uint64_t(color0));
+}
+
+inline uint64_t makeSide(Color* color_array) {
+    uint64_t out = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+        out |= (uint64_t(color_array[i]) << (i * 8));
+    }
+    return out;
 }
 
 std::vector<Move> makeScramble(unsigned int length);
@@ -168,7 +170,7 @@ class Cube {
         sides[5] = orange_side;
     }
 
-    Cube(const Cube &cube) { //Copy constructor
+    Cube(const Cube &cube) {
         sides[0] = cube.sides[0];
         sides[1] = cube.sides[1];
         sides[2] = cube.sides[2];
