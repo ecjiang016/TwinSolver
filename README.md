@@ -1,5 +1,5 @@
 # TwinSolver
-A two phase Rubik's Cube solving algorithm based on [Herbert Kociemba's 2 phase algorithm](http://kociemba.org/cube.htm).
+A 2 phase Rubik's Cube solving algorithm based on [Herbert Kociemba's 2 phase algorithm](http://kociemba.org/cube.htm).
 
 Current performance: 23.06 move solution in 15 milliseconds on average.
 
@@ -49,7 +49,7 @@ Note that the computation does take a while (A little less than 20 minutes on my
 
 ### Move Tables
 The solver uses lookup tables to accelerate turning the cube. <br>
-**Make sure to initalize the move tables or the solver won't work correctly**
+**Make sure to initialize the move tables or the solver won't work correctly**
 ```C++
 #include "moves.h"
 
@@ -57,7 +57,7 @@ MoveTable::initalizeTables(); // This line always needs to be called before usin
 ```
 
 ### The Cube
-The solver takes in a cube which can be constucted with the `Cube` class. <br>
+The solver takes in a cube which can be constructed with the `Cube` class. <br>
 Note that the cube is assumed to have white facing down and blue facing the front.
 
 Either create a cube and rotate it to the scramble:
@@ -113,7 +113,7 @@ std::vector<Move> solution = TwoPhaseSolver(path_to_phase1_database, path_to_pha
 ### Full Example Code
 ```C++
 #include "cube.h"
-#inlcude "moves.h"
+#include "moves.h"
 #include "solver.h"
 #include <vector>
 #include <iostream>
